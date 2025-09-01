@@ -11,6 +11,22 @@ from rich.table import Table
 from rich.prompt import Prompt
 
 
+def print_logo(console: Console) -> None:
+    """Print the DataTalk ASCII logo."""
+    logo = """
+[bold cyan]
+██████╗  █████╗ ████████╗ █████╗ ████████╗ █████╗ ██╗     ██╗  ██╗
+██╔══██╗██╔══██╗╚══██╔══╝██╔══██╗╚══██╔══╝██╔══██╗██║     ██║ ██╔╝
+██║  ██║███████║   ██║   ███████║   ██║   ███████║██║     █████╔╝
+██║  ██║██╔══██║   ██║   ██╔══██║   ██║   ██╔══██║██║     ██╔═██╗
+██████╔╝██║  ██║   ██║   ██║  ██║   ██║   ██║  ██║███████╗██║  ██╗
+╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝
+[/bold cyan]
+[dim]Ask questions about your CSV/Parquet data using natural language[/dim]
+"""
+    console.print(logo)
+
+
 def get_config_path() -> Path:
     """Get the path to the configuration file."""
     config_dir = Path.home() / ".config" / "datatalk"
@@ -130,13 +146,25 @@ def get_azure_config(
         sys.exit(1)
 
 
-def load_csv_to_duckdb(path: str, con: duckdb.DuckDBPyConnection):
-    """Load CSV into DuckDB and create a table named 'events'."""
+def load_data_to_duckdb(path: str, con: duckdb.DuckDBPyConnection):
+    """Load CSV or Parquet file into DuckDB and create a table named 'events'."""
+    file_path = Path(path)
+    file_extension = file_path.suffix.lower()
+
     con.execute("DROP TABLE IF EXISTS events;")
-    con.execute(
-        f"CREATE TABLE events AS SELECT * FROM "
-        f"read_csv_auto('{path}', HEADER=TRUE);"
-    )
+
+    if file_extension == ".parquet":
+        con.execute(f"CREATE TABLE events AS SELECT * FROM read_parquet('{path}');")
+    elif file_extension == ".csv":
+        con.execute(
+            f"CREATE TABLE events AS SELECT * FROM "
+            f"read_csv_auto('{path}', HEADER=TRUE);"
+        )
+    else:
+        raise ValueError(
+            f"Unsupported file format: {file_extension}. "
+            f"Supported formats: .csv, .parquet"
+        )
 
 
 def get_schema(con: duckdb.DuckDBPyConnection) -> str:
@@ -147,6 +175,57 @@ def get_schema(con: duckdb.DuckDBPyConnection) -> str:
         _, name, col_type, *_ = row
         schema_lines.append(f"{name} ({col_type})")
     return ", ".join(schema_lines)
+
+
+def show_basic_stats(con: duckdb.DuckDBPyConnection, console: Console) -> None:
+    """Show basic statistics about the loaded data."""
+    # Get row count
+    result = con.execute("SELECT COUNT(*) FROM events").fetchone()
+    row_count = result[0] if result else 0
+
+    # Get column count and info
+    columns = con.execute("PRAGMA table_info('events')").fetchall()
+    col_count = len(columns)
+
+    console.print("\n[bold green]📊 Dataset Statistics[/bold green]")
+    console.print(f"• Rows: [cyan]{row_count:,}[/cyan]")
+    console.print(f"• Columns: [cyan]{col_count}[/cyan]")
+
+    # Show column info in a table
+    if columns:
+        table = Table(
+            show_header=True, header_style="bold magenta", title="Column Information"
+        )
+        table.add_column("Column", style="cyan")
+        table.add_column("Type", style="yellow")
+        table.add_column("Sample Values", style="dim")
+
+        for row in columns:
+            _, name, col_type, *_ = row
+            # Get a few sample values for this column
+            try:
+                query = (
+                    f"SELECT DISTINCT {name} FROM events "
+                    f"WHERE {name} IS NOT NULL LIMIT 3"
+                )
+                samples = con.execute(query).fetchall()
+                sample_values = []
+                for sample in samples:
+                    value_str = str(sample[0])
+                    if len(value_str) > 20:
+                        value_str = value_str[:20] + "..."
+                    sample_values.append(value_str)
+                sample_str = ", ".join(sample_values)
+                if not sample_str:
+                    sample_str = "[dim]no data[/dim]"
+            except Exception:
+                sample_str = "[dim]error reading[/dim]"
+
+            table.add_row(name, col_type, sample_str)
+
+        console.print(table)
+
+    console.print()
 
 
 def llm_to_sql(
@@ -241,11 +320,14 @@ def process_query(
 def main():
     console = Console()
 
+    # Display logo
+    print_logo(console)
+
     # Parse command line arguments
     parser = argparse.ArgumentParser(
-        description="Ask questions about CSV data using natural language"
+        description="Ask questions about CSV/Parquet data using natural language"
     )
-    parser.add_argument("file", nargs="?", help="CSV file to analyze")
+    parser.add_argument("file", nargs="?", help="CSV or Parquet file to analyze")
     parser.add_argument(
         "--show-sql", action="store_true", help="Show generated SQL queries"
     )
@@ -280,7 +362,7 @@ def main():
 
     # Check if file argument is provided when not using --config-info
     if not args.file:
-        console.print("[red]Error:[/red] CSV file is required")
+        console.print("[red]Error:[/red] CSV or Parquet file is required")
         parser.print_help()
         sys.exit(1)
 
@@ -302,10 +384,11 @@ def main():
 
     path = args.file
     con = duckdb.connect()
-    load_csv_to_duckdb(path, con)
+    load_data_to_duckdb(path, con)
     schema_info = get_schema(con)
 
-    console.print("[green]CSV loaded successfully![/green] ✨")
+    console.print("[green]Data loaded successfully![/green] ✨")
+    show_basic_stats(con, console)
 
     # Non-interactive mode
     if args.prompt:

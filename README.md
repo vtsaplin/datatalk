@@ -1,6 +1,27 @@
 # Datatalk
 
-Query CSV data with natural language.
+```text
+██████   █████  ████████  █████  ████████  █████  ██      ██   ██ 
+██   ██ ██   ██    ██    ██   ██    ██    ██   ██ ██      ██  ██  
+██   ██ ███████    ██    ███████    ██    ███████ ██      █████   
+██   ██ ██   ██    ██    ██   ██    ██    ██   ██ ██      ██  ██  
+██████  ██   ██    ██    ██   ██    ██    ██   ██ ███████ ██   ██ 
+```
+
+Query CSV and Parquet data with natural language.
+
+## The Idea
+
+Datatalk bridges the gap between data analysis and everyday language. Instead of writing complex SQL queries or learning pandas syntax, you simply ask questions in plain English about your data files.
+
+The tool works by:
+
+1. **Loading your data** - Supports both CSV and Parquet formats
+2. **Understanding your question** - Uses AI to interpret natural language queries
+3. **Analyzing the data** - Automatically processes your data to find the answers
+4. **Returning results** - Provides clear, formatted answers with the underlying data
+
+Whether you're analyzing marketing campaigns, exploring user behavior, or investigating trends, Datatalk lets you focus on asking the right questions rather than figuring out how to code the answers.
 
 ## Configuration
 
@@ -33,6 +54,12 @@ datatalk --config-info
 uv run datatalk sample_data.csv
 ```
 
+Or with Parquet files:
+
+```bash
+uv run datatalk sample_data.parquet
+```
+
 ## Common Marketing Queries
 
 Campaign performance:
@@ -56,7 +83,6 @@ uv run datatalk sample_data.csv --prompt "Show top 10 URLs by total pageviews"
 Bounce rate insights:
 
 ```bash
-```bash
 uv run datatalk sample_data.csv --prompt "Show campaigns with bounce rates under 50% and their actual rates"
 ```
 
@@ -71,3 +97,5 @@ Regional performance:
 ```bash
 uv run datatalk sample_data.csv --prompt "Compare performance by country based on URL patterns"
 ```
+
+> **Note:** All examples above work with both CSV and Parquet files. Simply replace `sample_data.csv` with `sample_data.parquet` or any other supported file.
