@@ -1,6 +1,6 @@
 [project]
 name = "datatalk-cli"
-version = "0.1.0"
+version = "0.1.1"
 description = "Query CSV and Parquet data with natural language"
 readme = "README.md"
 license = {text = "MIT"}
@@ -48,7 +48,7 @@ build-backend = "hatchling.build"
 packages = ["datatalk"]
 
 [project.scripts]
-datatalk = "datatalk.main:main"
+datatalk-cli = "datatalk.main:main"
 
 [tool.uv]
 dev-dependencies = [

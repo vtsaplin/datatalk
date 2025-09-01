@@ -3,8 +3,8 @@ class DatatalkCli < Formula
 
   desc "Query CSV and Parquet data with natural language"
   homepage "https://github.com/vtsaplin/datatalk"
-  url "https://files.pythonhosted.org/packages/source/d/datatalk-cli/datatalk_cli-0.1.0.tar.gz"
-  sha256 "b8b1ec9d68e1cd08305021ba6097c01893cca33a6fe044e38a72e3b192d3553f"
+  url "https://files.pythonhosted.org/packages/source/d/datatalk-cli/datatalk_cli-0.1.1.tar.gz"
+  sha256 "TBD_UPDATE_WITH_SCRIPT"
   license "MIT"
   head "https://github.com/vtsaplin/datatalk.git", branch: "main"
 
@@ -15,6 +15,6 @@ class DatatalkCli < Formula
   end
 
   test do
-    system "#{bin}/datatalk", "--help"
+    system "#{bin}/datatalk-cli", "--help"
   end
 end
