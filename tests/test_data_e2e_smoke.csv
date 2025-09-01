@@ -1,0 +1,6 @@
+id,name,category,price,quantity,status
+1,Laptop,Electronics,999.99,10,active
+2,Smartphone,Electronics,599.99,25,active
+3,Desk Chair,Furniture,149.99,15,active
+4,Coffee Mug,Kitchen,12.99,100,active
+5,Notebook,Office,4.99,200,discontinued

@@ -1,0 +1,51 @@
+product_id,product_name,category,brand,price,cost,stock_quantity,supplier_id,warehouse_location,last_restocked
+PROD001,Wireless Bluetooth Headphones,Electronics,TechSound,149.99,75.50,150,SUP001,Warehouse A,2023-08-15
+PROD002,Cotton T-Shirt,Clothing,CasualWear,24.99,12.00,300,SUP002,Warehouse B,2023-08-20
+PROD003,Office Desk Chair,Furniture,ComfortSeating,299.99,150.00,45,SUP003,Warehouse C,2023-08-10
+PROD004,Stainless Steel Water Bottle,Sports,HydroGear,19.99,8.50,200,SUP004,Warehouse A,2023-08-25
+PROD005,Programming Fundamentals Book,Books,TechPublish,49.99,25.00,80,SUP005,Warehouse D,2023-08-12
+PROD006,Building Blocks Set,Toys,PlayTime,34.99,18.00,120,SUP006,Warehouse B,2023-08-18
+PROD007,Organic Granola Bar,Food,HealthyBites,3.99,1.80,500,SUP007,Warehouse E,2023-08-28
+PROD008,Smartphone Case,Electronics,PhoneGuard,29.99,15.00,250,SUP001,Warehouse A,2023-08-22
+PROD009,Denim Jeans,Clothing,UrbanStyle,79.99,40.00,100,SUP002,Warehouse B,2023-08-14
+PROD010,Coffee Table,Furniture,ModernHome,199.99,100.00,25,SUP003,Warehouse C,2023-08-05
+PROD011,Yoga Mat,Sports,FitnessPro,39.99,20.00,180,SUP004,Warehouse A,2023-08-30
+PROD012,Mystery Novel,Books,PageTurner,14.99,7.50,150,SUP005,Warehouse D,2023-08-16
+PROD013,Remote Control Car,Toys,SpeedRacer,89.99,45.00,60,SUP006,Warehouse B,2023-08-08
+PROD014,Green Tea,Food,TeaTime,12.99,6.00,300,SUP007,Warehouse E,2023-08-27
+PROD015,Laptop Stand,Electronics,ErgoTech,79.99,40.00,90,SUP001,Warehouse A,2023-08-19
+PROD016,Summer Dress,Clothing,ChicFashion,59.99,30.00,85,SUP002,Warehouse B,2023-08-13
+PROD017,Bookshelf,Furniture,HomeLibrary,149.99,75.00,35,SUP003,Warehouse C,2023-08-07
+PROD018,Tennis Racket,Sports,CourtMaster,129.99,65.00,70,SUP004,Warehouse A,2023-08-24
+PROD019,Cookbook Collection,Books,ChefSecrets,39.99,20.00,95,SUP005,Warehouse D,2023-08-11
+PROD020,Puzzle Game,Toys,BrainTeaser,24.99,12.50,140,SUP006,Warehouse B,2023-08-21
+PROD021,Protein Powder,Food,MuscleMax,79.99,40.00,110,SUP007,Warehouse E,2023-08-26
+PROD022,Wireless Mouse,Electronics,ClickTech,49.99,25.00,170,SUP001,Warehouse A,2023-08-17
+PROD023,Hoodie Sweatshirt,Clothing,CozyWear,69.99,35.00,120,SUP002,Warehouse B,2023-08-09
+PROD024,Dining Table,Furniture,FamilyGather,599.99,300.00,15,SUP003,Warehouse C,2023-08-03
+PROD025,Running Shoes,Sports,RunFast,119.99,60.00,95,SUP004,Warehouse A,2023-08-29
+PROD026,Science Textbook,Books,EduPress,129.99,65.00,60,SUP005,Warehouse D,2023-08-06
+PROD027,LEGO Building Set,Toys,BrickMaster,149.99,75.00,50,SUP006,Warehouse B,2023-08-23
+PROD028,Dark Chocolate,Food,SweetTreats,8.99,4.50,400,SUP007,Warehouse E,2023-08-31
+PROD029,Tablet Computer,Electronics,TabletPro,399.99,200.00,40,SUP001,Warehouse A,2023-08-04
+PROD030,Winter Jacket,Clothing,WarmGear,159.99,80.00,65,SUP002,Warehouse B,2023-08-15
+PROD031,Floor Lamp,Furniture,BrightLights,89.99,45.00,75,SUP003,Warehouse C,2023-08-20
+PROD032,Basketball,Sports,CourtChamp,29.99,15.00,160,SUP004,Warehouse A,2023-08-12
+PROD033,Art History Book,Books,CulturePress,69.99,35.00,70,SUP005,Warehouse D,2023-08-25
+PROD034,Board Game,Toys,FamilyFun,39.99,20.00,100,SUP006,Warehouse B,2023-08-18
+PROD035,Coffee Beans,Food,BrewMaster,24.99,12.50,250,SUP007,Warehouse E,2023-08-28
+PROD036,Gaming Keyboard,Electronics,GameGear,159.99,80.00,55,SUP001,Warehouse A,2023-08-10
+PROD037,Business Suit,Clothing,Professional,299.99,150.00,30,SUP002,Warehouse B,2023-08-22
+PROD038,Nightstand,Furniture,BedroomEssentials,129.99,65.00,45,SUP003,Warehouse C,2023-08-14
+PROD039,Golf Clubs Set,Sports,GolfPro,899.99,450.00,20,SUP004,Warehouse A,2023-08-08
+PROD040,Programming Manual,Books,CodeMaster,89.99,45.00,85,SUP005,Warehouse D,2023-08-30
+PROD041,Action Figure,Toys,HeroPlay,19.99,10.00,180,SUP006,Warehouse B,2023-08-16
+PROD042,Fruit Snacks,Food,HealthyKids,6.99,3.50,350,SUP007,Warehouse E,2023-08-27
+PROD043,Monitor Screen,Electronics,ViewTech,249.99,125.00,65,SUP001,Warehouse A,2023-08-19
+PROD044,Casual Shorts,Clothing,SummerStyle,34.99,17.50,140,SUP002,Warehouse B,2023-08-13
+PROD045,Wardrobe Cabinet,Furniture,StoragePlus,399.99,200.00,25,SUP003,Warehouse C,2023-08-07
+PROD046,Fitness Tracker,Sports,HealthTech,199.99,100.00,80,SUP004,Warehouse A,2023-08-24
+PROD047,Poetry Collection,Books,VerseWorks,29.99,15.00,110,SUP005,Warehouse D,2023-08-11
+PROD048,Model Airplane,Toys,SkyHigh,59.99,30.00,75,SUP006,Warehouse B,2023-08-21
+PROD049,Energy Drink,Food,PowerBoost,4.99,2.50,450,SUP007,Warehouse E,2023-08-26
+PROD050,Webcam HD,Electronics,StreamPro,89.99,45.00,90,SUP001,Warehouse A,2023-08-17

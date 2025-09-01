@@ -1,0 +1,51 @@
+customer_id,first_name,last_name,email,phone,address,city,state,zip_code,registration_date,total_orders,total_spent,customer_tier
+CUST00001,Michael,Johnson,michael.johnson@email.com,555-0001,123 Oak Street,Springfield,IL,62701,2022-01-15,12,2340.88,Gold
+CUST00002,Sarah,Williams,sarah.williams@email.com,555-0002,456 Pine Avenue,Madison,WI,53703,2022-02-20,8,1567.45,Silver
+CUST00003,David,Brown,david.brown@email.com,555-0003,789 Maple Drive,Austin,TX,73301,2022-03-10,15,3298.72,Platinum
+CUST00004,Lisa,Davis,lisa.davis@email.com,555-0004,321 Elm Street,Portland,OR,97201,2022-04-05,5,892.15,Bronze
+CUST00005,Robert,Miller,robert.miller@email.com,555-0005,654 Cedar Lane,Denver,CO,80202,2022-05-12,20,4567.33,Platinum
+CUST00006,Jennifer,Wilson,jennifer.wilson@email.com,555-0006,987 Birch Road,Seattle,WA,98101,2022-06-18,7,1234.56,Silver
+CUST00007,James,Moore,james.moore@email.com,555-0007,147 Walnut Street,Boston,MA,02108,2022-07-22,11,2156.78,Gold
+CUST00008,Mary,Taylor,mary.taylor@email.com,555-0008,258 Cherry Avenue,Miami,FL,33101,2022-08-14,9,1789.23,Silver
+CUST00009,Christopher,Anderson,christopher.anderson@email.com,555-0009,369 Spruce Drive,Phoenix,AZ,85001,2022-09-03,6,1098.67,Bronze
+CUST00010,Amanda,Thomas,amanda.thomas@email.com,555-0010,741 Ash Lane,Nashville,TN,37201,2022-10-07,14,2987.44,Gold
+CUST00011,Daniel,Jackson,daniel.jackson@email.com,555-0011,852 Poplar Road,Charlotte,NC,28201,2022-11-11,4,723.89,Bronze
+CUST00012,Michelle,White,michelle.white@email.com,555-0012,963 Hickory Street,Atlanta,GA,30301,2022-12-19,18,3765.12,Platinum
+CUST00013,Matthew,Harris,matthew.harris@email.com,555-0013,159 Magnolia Avenue,San Diego,CA,92101,2023-01-25,10,1876.54,Silver
+CUST00014,Ashley,Martin,ashley.martin@email.com,555-0014,357 Sycamore Drive,Las Vegas,NV,89101,2023-02-14,13,2543.76,Gold
+CUST00015,Anthony,Thompson,anthony.thompson@email.com,555-0015,468 Redwood Lane,Sacramento,CA,95814,2023-03-08,7,1345.67,Silver
+CUST00016,Stephanie,Garcia,stephanie.garcia@email.com,555-0016,579 Willow Road,Kansas City,MO,64101,2023-04-12,16,3456.78,Platinum
+CUST00017,Joshua,Martinez,joshua.martinez@email.com,555-0017,680 Dogwood Street,Columbus,OH,43201,2023-05-20,8,1654.32,Silver
+CUST00018,Elizabeth,Robinson,elizabeth.robinson@email.com,555-0018,791 Beech Avenue,Indianapolis,IN,46201,2023-06-15,12,2234.55,Gold
+CUST00019,Ryan,Clark,ryan.clark@email.com,555-0019,802 Cypress Drive,Memphis,TN,38101,2023-07-09,5,967.44,Bronze
+CUST00020,Nicole,Rodriguez,nicole.rodriguez@email.com,555-0020,913 Palm Lane,New Orleans,LA,70112,2023-08-03,19,4123.87,Platinum
+CUST00021,Brandon,Lewis,brandon.lewis@email.com,555-0021,124 Bamboo Road,Salt Lake City,UT,84101,2022-09-18,11,2087.65,Gold
+CUST00022,Kimberly,Lee,kimberly.lee@email.com,555-0022,235 Fir Street,Albuquerque,NM,87101,2022-10-23,6,1176.54,Bronze
+CUST00023,Kevin,Walker,kevin.walker@email.com,555-0023,346 Pine Cone Avenue,Tucson,AZ,85701,2022-11-27,14,2765.43,Gold
+CUST00024,Rachel,Hall,rachel.hall@email.com,555-0024,457 Juniper Drive,Fresno,CA,93701,2022-12-31,9,1798.76,Silver
+CUST00025,Justin,Allen,justin.allen@email.com,555-0025,568 Cedar Pine Lane,Long Beach,CA,90801,2023-01-16,17,3567.89,Platinum
+CUST00026,Heather,Young,heather.young@email.com,555-0026,679 Oak Hill Road,Virginia Beach,VA,23451,2023-02-21,7,1432.10,Silver
+CUST00027,Aaron,Hernandez,aaron.hernandez@email.com,555-0027,780 Maple Leaf Street,Oakland,CA,94601,2023-03-28,13,2654.32,Gold
+CUST00028,Megan,King,megan.king@email.com,555-0028,891 Elm Grove Avenue,Minneapolis,MN,55401,2023-04-24,8,1765.43,Silver
+CUST00029,Jeremy,Wright,jeremy.wright@email.com,555-0029,902 Birch Tree Drive,Tulsa,OK,74101,2023-05-19,15,3234.56,Platinum
+CUST00030,Crystal,Lopez,crystal.lopez@email.com,555-0030,123 Cherry Blossom Lane,Arlington,TX,76001,2023-06-25,4,812.34,Bronze
+CUST00031,Tyler,Hill,tyler.hill@email.com,555-0031,234 Spruce Pine Road,Tampa,FL,33601,2023-07-30,12,2456.78,Gold
+CUST00032,Amy,Scott,amy.scott@email.com,555-0032,345 Ash Tree Street,Aurora,CO,80010,2023-08-15,10,1987.65,Silver
+CUST00033,Nathan,Green,nathan.green@email.com,555-0033,456 Poplar Grove Avenue,Anaheim,CA,92801,2022-04-17,18,3876.54,Platinum
+CUST00034,Samantha,Adams,samantha.adams@email.com,555-0034,567 Hickory Hill Drive,Santa Ana,CA,92701,2022-05-22,6,1234.56,Bronze
+CUST00035,Eric,Baker,eric.baker@email.com,555-0035,678 Magnolia Park Lane,St. Louis,MO,63101,2022-06-28,14,2987.65,Gold
+CUST00036,Laura,Gonzalez,laura.gonzalez@email.com,555-0036,789 Sycamore Valley Road,Riverside,CA,92501,2022-07-14,9,1765.43,Silver
+CUST00037,Andrew,Nelson,andrew.nelson@email.com,555-0037,890 Redwood Forest Street,Corpus Christi,TX,78401,2022-08-19,16,3456.78,Platinum
+CUST00038,Jessica,Carter,jessica.carter@email.com,555-0038,901 Willow Creek Avenue,Lexington,KY,40507,2022-09-24,7,1432.10,Silver
+CUST00039,Brian,Mitchell,brian.mitchell@email.com,555-0039,123 Dogwood Hills Drive,Pittsburgh,PA,15201,2022-10-29,13,2654.32,Gold
+CUST00040,Melissa,Perez,melissa.perez@email.com,555-0040,234 Beech Grove Lane,Anchorage,AK,99501,2022-11-13,5,967.89,Bronze
+CUST00041,Jordan,Roberts,jordan.roberts@email.com,555-0041,345 Cypress Point Road,Stockton,CA,95201,2022-12-18,19,4098.76,Platinum
+CUST00042,Brittany,Turner,brittany.turner@email.com,555-0042,456 Palm Beach Street,Toledo,OH,43601,2023-01-23,8,1654.32,Silver
+CUST00043,Gregory,Phillips,gregory.phillips@email.com,555-0043,567 Bamboo Grove Avenue,Newark,NJ,07101,2023-02-28,12,2345.67,Gold
+CUST00044,Danielle,Campbell,danielle.campbell@email.com,555-0044,678 Fir Tree Drive,Plano,TX,75023,2023-03-15,11,2087.54,Gold
+CUST00045,Sean,Parker,sean.parker@email.com,555-0045,789 Pine Valley Lane,Henderson,NV,89002,2023-04-20,15,3234.56,Platinum
+CUST00046,Tiffany,Evans,tiffany.evans@email.com,555-0046,890 Juniper Hills Road,Lincoln,NE,68501,2023-05-25,6,1176.43,Bronze
+CUST00047,Marcus,Edwards,marcus.edwards@email.com,555-0047,901 Cedar Ridge Street,Buffalo,NY,14201,2023-06-30,17,3567.89,Platinum
+CUST00048,Vanessa,Collins,vanessa.collins@email.com,555-0048,123 Oak Valley Avenue,Fort Wayne,IN,46801,2023-07-15,9,1798.76,Silver
+CUST00049,Jonathan,Stewart,jonathan.stewart@email.com,555-0049,234 Maple Ridge Drive,Jersey City,NJ,07302,2023-08-20,14,2765.43,Gold
+CUST00050,Carrie,Sanchez,carrie.sanchez@email.com,555-0050,345 Elm Valley Lane,Chula Vista,CA,91910,2023-08-25,10,1987.65,Silver

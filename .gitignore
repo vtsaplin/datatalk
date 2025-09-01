@@ -169,7 +169,3 @@ cython_debug/
 # Application-specific
 config.json
 .config/
-
-# Sample data files
-sample_data.csv
-*.csv

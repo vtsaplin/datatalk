@@ -33,7 +33,7 @@ Whether you're analyzing marketing campaigns, exploring user behavior, or invest
 
 ## Getting Started
 
-### Option 1: PyPI
+### PyPI Installation
 
 ```bash
 # Using pip
@@ -43,7 +43,7 @@ pip install datatalk
 uv add datatalk
 ```
 
-### Option 2: Homebrew
+### Homebrew Installation
 
 ```bash
 # Add the tap
@@ -51,17 +51,6 @@ brew tap tsaplin/datatalk
 
 # Install datatalk
 brew install datatalk
-```
-
-### Option 3: Development Installation
-
-```bash
-# Clone the repository
-git clone https://github.com/tsaplin/datatalk.git
-cd datatalk
-
-# Run directly
-uv run datatalk --help
 ```
 
 ## Setting Up Your Environment
@@ -89,14 +78,53 @@ To view your current configuration:
 datatalk --config-info
 ```
 
-## Quick Start Examples
+## Usage Examples with Sample Data
+
+This repository includes sample CSV files in the `sample_data/` folder to help you get started quickly:
 
 ```bash
-uv run datatalk sample_data.csv
+# Analyze sales data interactively
+uv run datatalk sample_data/sales_data.csv
 ```
 
-Or with Parquet files:
+```bash
+# Analyze employee data interactively
+uv run datatalk sample_data/employees.csv
+```
 
 ```bash
-uv run datatalk sample_data.parquet
+# Analyze inventory data interactively
+uv run datatalk sample_data/inventory.csv
+```
+
+```bash
+# Analyze customer data interactively
+uv run datatalk sample_data/customers.csv
+```
+
+## Development
+
+### Development Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/tsaplin/datatalk.git
+cd datatalk
+
+# Run directly
+uv run datatalk --help
+```
+
+### Testing
+
+Install test dependencies:
+
+```bash
+uv sync --extra test
+```
+
+Run all tests:
+
+```bash
+uv run pytest
 ```

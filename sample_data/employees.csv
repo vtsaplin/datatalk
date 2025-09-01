@@ -1,0 +1,57 @@
+employee_id,first_name,last_name,department,position,salary,hire_date,manager_id,email,phone
+EMP001,John,Smith,Engineering,Software Engineer,85000,2022-01-15,EMP100,john.smith@company.com,555-0101
+EMP002,Sarah,Johnson,Marketing,Marketing Manager,75000,2021-03-22,EMP101,sarah.johnson@company.com,555-0102
+EMP003,Mike,Williams,Sales,Sales Representative,55000,2023-02-10,EMP102,mike.williams@company.com,555-0103
+EMP004,Lisa,Brown,HR,HR Specialist,60000,2022-07-08,EMP103,lisa.brown@company.com,555-0104
+EMP005,David,Jones,Finance,Financial Analyst,70000,2021-11-30,EMP104,david.jones@company.com,555-0105
+EMP006,Emily,Davis,Engineering,Senior Developer,95000,2020-05-18,EMP100,emily.davis@company.com,555-0106
+EMP007,Chris,Miller,Marketing,Content Creator,50000,2023-01-25,EMP101,chris.miller@company.com,555-0107
+EMP008,Amanda,Wilson,Sales,Account Executive,65000,2022-09-12,EMP102,amanda.wilson@company.com,555-0108
+EMP009,James,Moore,IT,System Administrator,72000,2021-08-03,EMP105,james.moore@company.com,555-0109
+EMP010,Jennifer,Taylor,Finance,Senior Accountant,68000,2022-04-17,EMP104,jennifer.taylor@company.com,555-0110
+EMP011,Robert,Anderson,Engineering,DevOps Engineer,88000,2021-12-05,EMP100,robert.anderson@company.com,555-0111
+EMP012,Michelle,Thomas,HR,Recruiter,58000,2023-03-08,EMP103,michelle.thomas@company.com,555-0112
+EMP013,Kevin,Jackson,Sales,Sales Manager,80000,2020-10-14,EMP102,kevin.jackson@company.com,555-0113
+EMP014,Nicole,White,Marketing,Digital Marketer,52000,2022-06-20,EMP101,nicole.white@company.com,555-0114
+EMP015,Daniel,Harris,Engineering,Frontend Developer,78000,2021-02-28,EMP100,daniel.harris@company.com,555-0115
+EMP016,Rachel,Martin,Finance,Budget Analyst,64000,2023-04-12,EMP104,rachel.martin@company.com,555-0116
+EMP017,Mark,Thompson,IT,Network Engineer,76000,2022-01-08,EMP105,mark.thompson@company.com,555-0117
+EMP018,Lauren,Garcia,Sales,Business Development,71000,2021-09-25,EMP102,lauren.garcia@company.com,555-0118
+EMP019,Steven,Martinez,Engineering,Backend Developer,82000,2022-11-14,EMP100,steven.martinez@company.com,555-0119
+EMP020,Jessica,Robinson,HR,Training Coordinator,56000,2023-01-30,EMP103,jessica.robinson@company.com,555-0120
+EMP021,Brian,Clark,Marketing,SEO Specialist,48000,2022-08-07,EMP101,brian.clark@company.com,555-0121
+EMP022,Stephanie,Rodriguez,Finance,Tax Specialist,66000,2021-05-16,EMP104,stephanie.rodriguez@company.com,555-0122
+EMP023,Ryan,Lewis,Engineering,QA Engineer,74000,2022-12-03,EMP100,ryan.lewis@company.com,555-0123
+EMP024,Melissa,Lee,Sales,Inside Sales Rep,54000,2023-02-21,EMP102,melissa.lee@company.com,555-0124
+EMP025,Jason,Walker,IT,Database Admin,79000,2021-07-11,EMP105,jason.walker@company.com,555-0125
+EMP026,Kimberly,Hall,Marketing,Brand Manager,69000,2022-03-18,EMP101,kimberly.hall@company.com,555-0126
+EMP027,Andrew,Allen,Engineering,Mobile Developer,81000,2021-10-29,EMP100,andrew.allen@company.com,555-0127
+EMP028,Angela,Young,HR,Benefits Admin,59000,2023-05-06,EMP103,angela.young@company.com,555-0128
+EMP029,Joseph,Hernandez,Finance,Controller,92000,2020-08-22,EMP104,joseph.hernandez@company.com,555-0129
+EMP030,Ashley,King,Sales,Regional Manager,87000,2021-01-19,EMP102,ashley.king@company.com,555-0130
+EMP031,William,Wright,Engineering,Tech Lead,105000,2020-04-05,EMP100,william.wright@company.com,555-0131
+EMP032,Heather,Lopez,Marketing,Product Marketing,73000,2022-05-24,EMP101,heather.lopez@company.com,555-0132
+EMP033,Matthew,Hill,IT,Security Analyst,77000,2021-11-07,EMP105,matthew.hill@company.com,555-0133
+EMP034,Amy,Scott,Finance,Financial Planner,75000,2022-02-14,EMP104,amy.scott@company.com,555-0134
+EMP035,Joshua,Green,Sales,Key Account Manager,83000,2021-06-01,EMP102,joshua.green@company.com,555-0135
+EMP036,Rebecca,Adams,Engineering,Data Scientist,96000,2022-07-19,EMP100,rebecca.adams@company.com,555-0136
+EMP037,Christopher,Baker,HR,HR Manager,86000,2020-12-11,EMP103,christopher.baker@company.com,555-0137
+EMP038,Samantha,Gonzalez,Marketing,Social Media Manager,51000,2023-03-27,EMP101,samantha.gonzalez@company.com,555-0138
+EMP039,Anthony,Nelson,Finance,Investment Analyst,72000,2021-04-13,EMP104,anthony.nelson@company.com,555-0139
+EMP040,Laura,Carter,Sales,Channel Manager,78000,2022-10-08,EMP102,laura.carter@company.com,555-0140
+EMP041,Eric,Mitchell,Engineering,Cloud Architect,110000,2020-09-26,EMP100,eric.mitchell@company.com,555-0141
+EMP042,Megan,Perez,IT,Help Desk Specialist,45000,2023-01-14,EMP105,megan.perez@company.com,555-0142
+EMP043,Nathan,Roberts,Marketing,Marketing Director,95000,2019-11-03,EMP101,nathan.roberts@company.com,555-0143
+EMP044,Crystal,Turner,Finance,Treasury Analyst,67000,2022-06-12,EMP104,crystal.turner@company.com,555-0144
+EMP045,Brandon,Phillips,Sales,Enterprise Sales,89000,2021-08-28,EMP102,brandon.phillips@company.com,555-0145
+EMP046,Tiffany,Campbell,Engineering,UX Designer,84000,2022-01-31,EMP100,tiffany.campbell@company.com,555-0146
+EMP047,Jeremy,Parker,HR,Compensation Analyst,63000,2021-12-16,EMP103,jeremy.parker@company.com,555-0147
+EMP048,Brittany,Evans,Marketing,Event Coordinator,49000,2023-04-23,EMP101,brittany.evans@company.com,555-0148
+EMP049,Tyler,Edwards,IT,Infrastructure Engineer,81000,2022-03-09,EMP105,tyler.edwards@company.com,555-0149
+EMP050,Vanessa,Collins,Finance,Risk Analyst,71000,2021-07-25,EMP104,vanessa.collins@company.com,555-0150
+EMP100,Susan,Manager,Engineering,Engineering Director,120000,2018-01-15,CEO001,susan.manager@company.com,555-1001
+EMP101,Tom,Director,Marketing,Marketing Director,115000,2018-03-22,CEO001,tom.director@company.com,555-1002
+EMP102,Linda,Head,Sales,Sales Director,118000,2017-11-08,CEO001,linda.head@company.com,555-1003
+EMP103,Paul,Leader,HR,HR Director,112000,2018-07-14,CEO001,paul.leader@company.com,555-1004
+EMP104,Karen,Chief,Finance,Finance Director,125000,2017-05-30,CEO001,karen.chief@company.com,555-1005
+EMP105,Richard,Boss,IT,IT Director,122000,2018-09-12,CEO001,richard.boss@company.com,555-1006
