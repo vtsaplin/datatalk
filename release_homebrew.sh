@@ -31,7 +31,7 @@ fi
 
 # Download the release tarball and calculate SHA256
 echo "Downloading release tarball to calculate SHA256..."
-TARBALL_URL="https://github.com/tsaplin/datatalk/archive/refs/tags/$TAG.tar.gz"
+TARBALL_URL="https://github.com/vtsaplin/datatalk/archive/refs/tags/$TAG.tar.gz"
 echo "URL: $TARBALL_URL"
 
 # Download and calculate SHA256

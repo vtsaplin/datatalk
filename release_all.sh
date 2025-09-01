@@ -118,7 +118,7 @@ fi
 
 echo ""
 echo "Package available at:"
-echo "- GitHub: https://github.com/tsaplin/datatalk/releases/tag/$TAG"
+echo "- GitHub: https://github.com/vtsaplin/datatalk/releases/tag/$TAG"
 if [ "$TEST_MODE" != "--test-pypi" ]; then
     echo "- PyPI: https://pypi.org/project/datatalk/"
 fi
