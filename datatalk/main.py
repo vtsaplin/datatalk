@@ -421,6 +421,7 @@ def generate_sample_queries(
     client: Union[AzureOpenAI, OpenAI],
     model_name: str,
     schema_info: str,
+    last_query: str | None = None,
 ) -> list[str]:
     """Generate sample queries using AI analysis of the actual data."""
     try:
@@ -446,10 +447,34 @@ def generate_sample_queries(
                     row_dict[column_names[i]] = str_value
             sample_rows.append(row_dict)
 
-        # Create prompt for LLM
-        prompt = f"""
-You are a data analyst. Given this dataset information, suggest 6 interesting
-and practical questions that a user might want to ask about this data.
+        # Create prompt for LLM, adapting based on whether there's a last query
+        if last_query:
+            prompt = f"""
+You are a data analyst. A user just asked: "{last_query}"
+
+Based on this previous question and the dataset below, suggest 5 follow-up questions
+that would naturally complement or build upon their previous query.
+
+Dataset Info:
+- Schema: {schema_info}
+- Total rows: {row_count:,}
+- Sample data (first 5 rows): {sample_rows}
+
+Requirements:
+1. Generate questions that logically follow from their previous question
+2. Focus on deeper insights or related analysis
+3. Questions should be in natural language
+4. Return ONLY the questions, one per line
+5. No numbering or bullet points
+
+Example format:
+What is the total number of pageviews?
+Which device type has the highest bounce rate?
+"""
+        else:
+            prompt = f"""
+You are a data analyst. Given this dataset information, suggest 5 interesting
+and practical starter questions that a user might want to ask about this data.
 
 Dataset Info:
 - Schema: {schema_info}
@@ -473,7 +498,7 @@ Which device type has the highest bounce rate?
             model=model_name,
             messages=[{"role": "user", "content": prompt}],
             temperature=0.3,
-            max_tokens=400,
+            max_tokens=300,
         )
 
         # Track token usage
@@ -499,70 +524,28 @@ Which device type has the highest bounce rate?
                 if len(parts) > 1:
                     clean_queries.append(parts[1].strip())
 
-        return clean_queries[:6]  # Limit to 6 queries
+        return clean_queries[:5]  # Limit to 5 queries
 
     except Exception as e:
         # Fallback to basic queries if LLM fails
         fallback_msg = f"Warning: Could not generate LLM-based queries ({e})."
         print(f"{fallback_msg} Using fallback.")
-        return [
-            "How many rows are in the dataset?",
-            "Show me the first 10 rows",
-            "What are the column names?",
-            "Show me some summary statistics",
-            "What are the unique values in the first column?",
-            "Show me the data grouped by the first categorical column",
-        ]
-
-
-def show_sample_queries(sample_queries: list[str], console: Console) -> None:
-    """Display sample queries that users can choose from."""
-    console.print("[bold green]Questions derived from your data[/bold green]")
-    console.print("[dim]Choose a question to run or type your own:[/dim]\n")
-
-    for i, query in enumerate(sample_queries, 1):
-        console.print(f"[cyan]{i}.[/cyan] {query}")
-
-    num = len(sample_queries) + 1
-    option_text = f"[cyan]{num}.[/cyan] [dim]Type my own question[/dim]"
-    console.print(option_text)
-    console.print()
-
-
-def get_user_choice(console: Console, sample_queries: list[str]) -> str | None:
-    """Get user's choice for sample query or custom input."""
-    max_choice = len(sample_queries) + 1
-
-    while True:
-        try:
-            prompt_text = (
-                f"[bold blue]Choose a question (1-{max_choice}) "
-                f"or press Enter to type your own[/bold blue]"
-            )
-            choice = Prompt.ask(prompt_text, console=console, default="")
-
-            if not choice.strip():
-                # User pressed Enter, they want to type their own question
-                return None
-
-            try:
-                choice_num = int(choice)
-                if 1 <= choice_num <= len(sample_queries):
-                    return sample_queries[choice_num - 1]
-                elif choice_num == max_choice:
-                    # User chose "Type my own question"
-                    return None
-                else:
-                    msg = (
-                        f"[red]Please enter a number between 1 and "
-                        f"{max_choice}[/red]"
-                    )
-                    console.print(msg)
-            except ValueError:
-                console.print("[red]Please enter a valid number or Enter[/red]")
-
-        except (EOFError, KeyboardInterrupt):
-            return "quit"
+        if last_query:
+            return [
+                "Show me more details about this data",
+                "What are some related patterns?",
+                "How does this compare to other segments?",
+                "What trends can we identify?",
+                "Are there any outliers or anomalies?",
+            ]
+        else:
+            return [
+                "How many rows are in the dataset?",
+                "Show me the first 10 rows",
+                "What are the column names?",
+                "Show me some summary statistics",
+                "What are the unique values in the first column?",
+            ]
 
 
 def interpret_results(
@@ -679,7 +662,7 @@ def process_query(
             console.print("[dim]Getting summary from AI...[/dim]")
             try:
                 interpretation = interpret_results(client, query, sql, res, model_name)
-                console.print("\n[bold green]Summary:[/bold green]")
+                console.print("\n[bold green]AI Summary:[/bold green]")
                 # Render markdown for better formatting
                 markdown = Markdown(interpretation)
                 console.print(markdown)
@@ -831,17 +814,33 @@ def main():
             "Type 'quit', 'exit', or 'stop' to quit.\n"
         )
 
-        # Generate sample queries
-        sample_queries = generate_sample_queries(con, client, model_name, schema_info)
-        if sample_queries:
-            console.print("[bold]Suggested questions to get started:[/bold]")
-            for i, query in enumerate(sample_queries, 1):
-                console.print(f"  {i}. {query}")
-            console.print()
+        # Initialize tracking variables
+        last_query = None
+        sample_queries = []
+
+        # Function to refresh suggestions
+        def refresh_suggestions():
+            nonlocal sample_queries
+            sample_queries = generate_sample_queries(
+                con, client, model_name, schema_info, last_query
+            )
+            if sample_queries:
+                if last_query:
+                    console.print("[bold]New suggested questions:[/bold]")
+                else:
+                    console.print("[bold]Suggested questions to get started:[/bold]")
+                for i, query in enumerate(sample_queries, 1):
+                    console.print(f"  {i}. {query}")
+                console.print()
+
+        # Show initial suggestions
+        refresh_suggestions()
 
         while True:
             try:
-                q = Prompt.ask("[bold blue]Ask a question[/bold blue]")
+                # Get user input
+                prompt_text = "[bold blue]Ask a question or choose 1-5[/bold blue]"
+                q = Prompt.ask(prompt_text)
             except EOFError:
                 console.print("\n[dim]Goodbye![/dim]")
                 # Show token usage statistics before exiting
@@ -858,9 +857,23 @@ def main():
             if not q.strip():
                 continue
 
+            # Check if user chose a suggestion number
+            selected_query = None
+            if q.strip().isdigit():
+                choice_num = int(q.strip())
+                if 1 <= choice_num <= len(sample_queries):
+                    selected_query = sample_queries[choice_num - 1]
+                    console.print(f"[dim]Selected: {selected_query}[/dim]")
+                else:
+                    console.print(f"[red]Please choose 1-{len(sample_queries)}[/red]")
+                    continue
+
+            # Use selected query or user's own question
+            query_to_process = selected_query if selected_query else q
+
             process_query(
                 client,
-                q,
+                query_to_process,
                 schema_info,
                 con,
                 args.show_sql,
@@ -868,7 +881,11 @@ def main():
                 model_name,
                 not args.hide_data,
             )
+
+            # Update last query and refresh suggestions
+            last_query = query_to_process
             console.print()  # Add blank line for spacing
+            refresh_suggestions()
 
     except KeyboardInterrupt:
         console.print("\n[dim]Operation cancelled. Goodbye![/dim]")
