@@ -4,12 +4,13 @@ import os
 import argparse
 import json
 from pathlib import Path
-from openai import AzureOpenAI
+from openai import AzureOpenAI, OpenAI
 from dotenv import load_dotenv
 from rich.console import Console
 from rich.table import Table
 from rich.prompt import Prompt
 from rich.markdown import Markdown
+from typing import Union
 
 
 def print_logo(console: Console) -> None:
@@ -66,12 +67,14 @@ def get_env_var(name: str, config: dict[str, str], console: Console) -> str:
     descriptions = {
         "AZURE_OPENAI_API_KEY": "Azure OpenAI API key",
         "AZURE_DEPLOYMENT_TARGET_URL": "Azure OpenAI deployment target URL",
+        "OPENAI_API_KEY": "OpenAI API key",
+        "OPENAI_MODEL": "OpenAI model name",
     }
 
     description = descriptions.get(name, name)
     console.print(f"[yellow]Missing configuration:[/yellow] {description}")
 
-    if name == "AZURE_OPENAI_API_KEY":
+    if "API_KEY" in name:
         value = Prompt.ask(f"Enter {description}", console=console, password=True)
     elif name == "AZURE_DEPLOYMENT_TARGET_URL":
         value = Prompt.ask(f"Enter {description}", console=console, default=None)
@@ -80,6 +83,9 @@ def get_env_var(name: str, config: dict[str, str], console: Console) -> str:
             "deployments/gpt-4o/chat/completions?"
             "api-version=2024-12-01-preview[/dim]"
         )
+    elif name == "OPENAI_MODEL":
+        value = Prompt.ask(f"Enter {description}", console=console, default="gpt-4o")
+        console.print("[dim]Example: gpt-4o, gpt-3.5-turbo[/dim]")
     else:
         # Unknown configuration variable
         console.print(f"[red]Error:[/red] Unknown configuration: {name}")
@@ -144,6 +150,82 @@ def get_azure_config(
     except ValueError as e:
         console.print(f"[red]Error parsing target URL:[/red] {e}")
         console.print("[red]Please check your AZURE_DEPLOYMENT_TARGET_URL format[/red]")
+        sys.exit(1)
+
+
+def get_openai_config(config: dict[str, str], console: Console) -> tuple[str, str]:
+    """Get OpenAI configuration."""
+    api_key = get_env_var("OPENAI_API_KEY", config, console)
+    model = get_env_var("OPENAI_MODEL", config, console)
+
+    console.print("[green]✓[/green] Using OpenAI configuration")
+    return api_key, model
+
+
+def detect_provider(config: dict[str, str], console: Console) -> str:
+    """Auto-detect provider based on available environment variables and config."""
+    # Check environment variables first
+    has_azure_env = bool(
+        os.getenv("AZURE_OPENAI_API_KEY") or os.getenv("AZURE_DEPLOYMENT_TARGET_URL")
+    )
+    has_openai_env = bool(os.getenv("OPENAI_API_KEY"))
+
+    # Check saved config
+    has_azure_config = bool(
+        config.get("AZURE_OPENAI_API_KEY") or config.get("AZURE_DEPLOYMENT_TARGET_URL")
+    )
+    has_openai_config = bool(config.get("OPENAI_API_KEY") or config.get("OPENAI_MODEL"))
+
+    # If both are available, prefer OpenAI (simpler setup)
+    if (has_openai_env or has_openai_config) and (has_azure_env or has_azure_config):
+        console.print("[yellow]Both Azure and OpenAI configurations detected.[/yellow]")
+        console.print("[dim]Preferring OpenAI (simpler setup)[/dim]")
+        return "openai"
+
+    # If only one is available, use that
+    if has_azure_env or has_azure_config:
+        console.print("[dim]Azure OpenAI configuration detected[/dim]")
+        return "azure"
+
+    if has_openai_env or has_openai_config:
+        console.print("[dim]OpenAI configuration detected[/dim]")
+        return "openai"
+
+    # If neither is available, ask the user
+    console.print("[yellow]No AI provider configuration detected.[/yellow]")
+    console.print("Available providers:")
+    console.print("  [bold]azure[/bold] - Azure OpenAI (requires API key + target URL)")
+    console.print("  [bold]openai[/bold] - OpenAI (requires API key + model name)")
+
+    while True:
+        choice = Prompt.ask(
+            "Choose provider", choices=["azure", "openai"], default="openai"
+        ).lower()
+        if choice in ["azure", "openai"]:
+            return choice
+        console.print("[red]Please choose 'azure' or 'openai'[/red]")
+
+
+def setup_ai_client(
+    provider: str, config: dict[str, str], console: Console
+) -> tuple[Union[AzureOpenAI, OpenAI], str]:
+    """Setup AI client based on provider."""
+    if provider == "azure":
+        api_key, endpoint, deployment_name, api_version = get_azure_config(
+            config, console
+        )
+        client = AzureOpenAI(
+            api_key=api_key,
+            api_version=api_version,
+            azure_endpoint=endpoint,
+        )
+        return client, deployment_name
+    elif provider == "openai":
+        api_key, model = get_openai_config(config, console)
+        client = OpenAI(api_key=api_key)
+        return client, model
+    else:
+        console.print(f"[red]Error:[/red] Unknown provider: {provider}")
         sys.exit(1)
 
 
@@ -232,9 +314,9 @@ def show_basic_stats(
 
 
 def llm_to_sql(
-    client: AzureOpenAI, question: str, schema_info: str, deployment_name: str
+    client: Union[AzureOpenAI, OpenAI], question: str, schema_info: str, model_name: str
 ) -> str:
-    """Ask Azure OpenAI to translate a natural language question into SQL."""
+    """Ask AI to translate a natural language question into SQL."""
     prompt = f"""
 You are a data assistant.
 The user asks questions about a table named 'events'.
@@ -247,7 +329,7 @@ User question: {question}
 """
 
     response = client.chat.completions.create(
-        model=deployment_name,
+        model=model_name,
         messages=[{"role": "user", "content": prompt}],
         temperature=float(os.getenv("MODEL_TEMPERATURE", "0.1")),
         max_tokens=500,
@@ -255,7 +337,7 @@ User question: {question}
 
     content = response.choices[0].message.content
     if content is None:
-        raise ValueError("No content returned from Azure OpenAI")
+        raise ValueError("No content returned from AI")
 
     sql = content.strip()
 
@@ -274,11 +356,11 @@ User question: {question}
 
 def generate_sample_queries(
     con: duckdb.DuckDBPyConnection,
-    client: AzureOpenAI,
-    deployment_name: str,
+    client: Union[AzureOpenAI, OpenAI],
+    model_name: str,
     schema_info: str,
 ) -> list[str]:
-    """Generate sample queries using LLM analysis of the actual data."""
+    """Generate sample queries using AI analysis of the actual data."""
     try:
         # Get basic data info for LLM analysis
         result = con.execute("SELECT COUNT(*) FROM events").fetchone()
@@ -326,7 +408,7 @@ Which device type has the highest bounce rate?
 """
 
         response = client.chat.completions.create(
-            model=deployment_name,
+            model=model_name,
             messages=[{"role": "user", "content": prompt}],
             temperature=0.3,
             max_tokens=400,
@@ -334,7 +416,7 @@ Which device type has the highest bounce rate?
 
         content = response.choices[0].message.content
         if content is None:
-            raise ValueError("No content returned from LLM")
+            raise ValueError("No content returned from AI")
 
         # Parse the response into individual queries
         queries = [q.strip() for q in content.strip().split("\n") if q.strip()]
@@ -419,13 +501,13 @@ def get_user_choice(console: Console, sample_queries: list[str]) -> str | None:
 
 
 def interpret_results(
-    client: AzureOpenAI,
+    client: Union[AzureOpenAI, OpenAI],
     question: str,
     sql_query: str,
     results_df,
-    deployment_name: str,
+    model_name: str,
 ) -> str:
-    """Send query results to LLM for interpretation and insights."""
+    """Send query results to AI for interpretation and insights."""
     # Convert results to a readable format for the LLM
     if len(results_df) == 0:
         results_summary = "No data returned from the query."
@@ -460,7 +542,7 @@ Maximum 100 words.
 """
 
     response = client.chat.completions.create(
-        model=deployment_name,
+        model=model_name,
         messages=[{"role": "user", "content": prompt}],
         temperature=0.1,
         max_tokens=200,
@@ -468,25 +550,25 @@ Maximum 100 words.
 
     content = response.choices[0].message.content
     if content is None:
-        raise ValueError("No content returned from Azure OpenAI")
+        raise ValueError("No content returned from AI")
 
     return content.strip()
 
 
 def process_query(
-    client: AzureOpenAI,
+    client: Union[AzureOpenAI, OpenAI],
     query: str,
     schema_info: str,
     con: duckdb.DuckDBPyConnection,
     show_sql: bool,
     console: Console,
-    deployment_name: str,
+    model_name: str,
     show_data: bool = False,
 ):
     """Process a single query and display results."""
     try:
         console.print("[dim]Analyzing your question...[/dim]")
-        sql = llm_to_sql(client, query, schema_info, deployment_name)
+        sql = llm_to_sql(client, query, schema_info, model_name)
         if show_sql:
             console.print(f"[cyan]SQL:[/cyan] [bold]{sql}[/bold]")
 
@@ -521,12 +603,10 @@ def process_query(
                     msg = f"[dim]Showing first 20 of {len(res)} rows[/dim]"
                     console.print(msg)
 
-            # Send results to LLM for summarization
+            # Send results to AI for summarization
             console.print("[dim]Getting summary from AI...[/dim]")
             try:
-                interpretation = interpret_results(
-                    client, query, sql, res, deployment_name
-                )
+                interpretation = interpret_results(client, query, sql, res, model_name)
                 console.print("\n[bold green]Summary:[/bold green]")
                 # Render markdown for better formatting
                 markdown = Markdown(interpretation)
@@ -560,6 +640,11 @@ def main():
         help="Show configuration file location and exit",
     )
     parser.add_argument(
+        "--reset-config",
+        action="store_true",
+        help="Reset (clear) all saved configuration and exit",
+    )
+    parser.add_argument(
         "-q", "--show-sql", action="store_true", help="Show generated SQL queries"
     )
     parser.add_argument(
@@ -573,6 +658,11 @@ def main():
         "--show-schema",
         action="store_true",
         help="Show detailed column information table",
+    )
+    parser.add_argument(
+        "--provider",
+        choices=["azure", "openai"],
+        help="AI provider to use (auto-detected if not specified)",
     )
 
     args = parser.parse_args()
@@ -597,7 +687,18 @@ def main():
             console.print("[yellow]Configuration file does not exist[/yellow]")
         return
 
-    # Check if file argument is provided when not using --config-info
+    # Handle reset config request
+    if args.reset_config:
+        config_path = get_config_path()
+        if config_path.exists():
+            config_path.unlink()
+            console.print("[green]✓[/green] Configuration file deleted")
+            console.print(f"[dim]Removed: {config_path}[/dim]")
+        else:
+            console.print("[yellow]No configuration file to delete[/yellow]")
+        return
+
+    # Check if file argument is provided when not using config options
     if not args.file:
         console.print("[red]Error:[/red] CSV or Parquet file is required")
         parser.print_help()
@@ -609,16 +710,15 @@ def main():
     # Load saved configuration
     config = load_config()
 
-    # Get Azure OpenAI configuration
-    azure_config = get_azure_config(config, console)
-    api_key, endpoint, deployment_name, api_version = azure_config
+    # Determine provider (auto-detect if not specified)
+    if args.provider:
+        provider = args.provider
+        console.print(f"[dim]Using specified provider: {provider}[/dim]")
+    else:
+        provider = detect_provider(config, console)
 
-    # Initialize Azure OpenAI client
-    client = AzureOpenAI(
-        api_key=api_key,
-        api_version=api_version,
-        azure_endpoint=endpoint,
-    )
+    # Setup AI client based on provider
+    client, model_name = setup_ai_client(provider, config, console)
 
     path = args.file
     con = duckdb.connect()
@@ -637,7 +737,7 @@ def main():
             con,
             args.show_sql,
             console,
-            deployment_name,
+            model_name,
             args.show_data,
         )
         return
@@ -646,7 +746,7 @@ def main():
     console.print("[dim]Type your questions ([bold]q[/bold] to quit)[/dim]\n")
 
     # Generate sample queries once to ensure consistency
-    sample_queries = generate_sample_queries(con, client, deployment_name, schema_info)
+    sample_queries = generate_sample_queries(con, client, model_name, schema_info)
 
     # Show sample queries to help users get started
     show_sample_queries(sample_queries, console)
@@ -683,7 +783,7 @@ def main():
             con,
             args.show_sql,
             console,
-            deployment_name,
+            model_name,
             args.show_data,
         )
         console.print()  # Add blank line for spacing
