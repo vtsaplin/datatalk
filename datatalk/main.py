@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 from rich.console import Console
 from rich.table import Table
 from rich.prompt import Prompt
+from rich.markdown import Markdown
 
 
 def print_logo(console: Console) -> None:
@@ -177,7 +178,9 @@ def get_schema(con: duckdb.DuckDBPyConnection) -> str:
     return ", ".join(schema_lines)
 
 
-def show_basic_stats(con: duckdb.DuckDBPyConnection, console: Console) -> None:
+def show_basic_stats(
+    con: duckdb.DuckDBPyConnection, console: Console, show_schema: bool = False
+) -> None:
     """Show basic statistics about the loaded data."""
     # Get row count
     result = con.execute("SELECT COUNT(*) FROM events").fetchone()
@@ -187,12 +190,12 @@ def show_basic_stats(con: duckdb.DuckDBPyConnection, console: Console) -> None:
     columns = con.execute("PRAGMA table_info('events')").fetchall()
     col_count = len(columns)
 
-    console.print("\n[bold green]📊 Dataset Statistics[/bold green]")
+    console.print("\n[bold green]Dataset Statistics[/bold green]")
     console.print(f"• Rows: [cyan]{row_count:,}[/cyan]")
     console.print(f"• Columns: [cyan]{col_count}[/cyan]")
 
-    # Show column info in a table
-    if columns:
+    # Show column info in a table only if show_schema is True
+    if show_schema and columns:
         table = Table(
             show_header=True, header_style="bold magenta", title="Column Information"
         )
@@ -367,7 +370,7 @@ Which device type has the highest bounce rate?
 
 def show_sample_queries(sample_queries: list[str], console: Console) -> None:
     """Display sample queries that users can choose from."""
-    console.print("[bold green]💡 Questions derived from your data[/bold green]")
+    console.print("[bold green]Questions derived from your data[/bold green]")
     console.print("[dim]Choose a question to run or type your own:[/dim]\n")
 
     for i, query in enumerate(sample_queries, 1):
@@ -403,13 +406,71 @@ def get_user_choice(console: Console, sample_queries: list[str]) -> str | None:
                     # User chose "Type my own question"
                     return None
                 else:
-                    msg = f"[red]Please enter a number between 1 and {max_choice}[/red]"
+                    msg = (
+                        f"[red]Please enter a number between 1 and "
+                        f"{max_choice}[/red]"
+                    )
                     console.print(msg)
             except ValueError:
                 console.print("[red]Please enter a valid number or Enter[/red]")
 
         except (EOFError, KeyboardInterrupt):
             return "quit"
+
+
+def interpret_results(
+    client: AzureOpenAI,
+    question: str,
+    sql_query: str,
+    results_df,
+    deployment_name: str,
+) -> str:
+    """Send query results to LLM for interpretation and insights."""
+    # Convert results to a readable format for the LLM
+    if len(results_df) == 0:
+        results_summary = "No data returned from the query."
+    else:
+        # Limit to first 10 rows and format nicely
+        limited_df = results_df.head(10)
+        results_summary = limited_df.to_string(index=False)
+
+        if len(results_df) > 10:
+            total_rows = len(results_df)
+            note = f"\n\n[Note: Showing first 10 of {total_rows} total rows]"
+            results_summary += note
+
+    prompt = f"""
+You are a data analyst assistant. A user asked a question about their data and
+received the following results. Please provide a clear, concise summary.
+
+User's Question: {question}
+Query Results: {results_summary}
+
+Provide a 2-3 sentence summary. ALWAYS format numbers and percentages in bold.
+
+Example: "The average bounce rate is **65.5%**" or "There are **1,234**
+total records"
+
+Focus on:
+- Direct answer with bold numbers
+- What the data shows
+- Any notable patterns
+
+Maximum 100 words.
+"""
+
+    response = client.chat.completions.create(
+        model=deployment_name,
+        messages=[{"role": "user", "content": prompt}],
+        temperature=0.1,
+        max_tokens=200,
+    )
+
+    content = response.choices[0].message.content
+    if content is None:
+        raise ValueError("No content returned from Azure OpenAI")
+
+    return content.strip()
 
 
 def process_query(
@@ -420,6 +481,7 @@ def process_query(
     show_sql: bool,
     console: Console,
     deployment_name: str,
+    show_data: bool = False,
 ):
     """Process a single query and display results."""
     try:
@@ -434,28 +496,44 @@ def process_query(
         if len(res) == 0:
             console.print("[yellow]No results found.[/yellow]")
         else:
-            # Create a rich table for better formatting
-            table = Table(show_header=True, header_style="bold magenta")
+            # Only show raw data table if show_data flag is set
+            if show_data:
+                # Create a rich table for better formatting
+                table = Table(show_header=True, header_style="bold magenta")
 
-            # Add columns
-            for col in res.columns:
-                table.add_column(col)
+                # Add columns
+                for col in res.columns:
+                    table.add_column(col)
 
-            # Add rows (limit to first 20 for readability)
-            row_count = 0
-            for _, row in res.iterrows():
-                if row_count >= 20:
-                    ellipsis = ["..." for _ in range(len(res.columns) - 1)]
-                    table.add_row("...", *ellipsis)
-                    break
-                table.add_row(*[str(val) for val in row])
-                row_count += 1
+                # Add rows (limit to first 20 for readability)
+                row_count = 0
+                for _, row in res.iterrows():
+                    if row_count >= 20:
+                        ellipsis = ["..." for _ in range(len(res.columns) - 1)]
+                        table.add_row("...", *ellipsis)
+                        break
+                    table.add_row(*[str(val) for val in row])
+                    row_count += 1
 
-            console.print(table)
+                console.print(table)
 
-            if len(res) > 20:
-                msg = f"[dim]Showing first 20 of {len(res)} rows[/dim]"
-                console.print(msg)
+                if len(res) > 20:
+                    msg = f"[dim]Showing first 20 of {len(res)} rows[/dim]"
+                    console.print(msg)
+
+            # Send results to LLM for summarization
+            console.print("\n[dim]Getting summary from AI...[/dim]")
+            try:
+                interpretation = interpret_results(
+                    client, query, sql, res, deployment_name
+                )
+                console.print("\n[bold green]Summary:[/bold green]")
+                # Render markdown for better formatting
+                markdown = Markdown(interpretation)
+                console.print(markdown)
+            except Exception as e:
+                msg = "[yellow]Note: Could not generate AI summary " "({e})[/yellow]"
+                console.print(msg.format(e=e))
 
     except Exception as e:
         console.print(f"[red]Error:[/red] {e}")
@@ -473,13 +551,28 @@ def main():
     )
     parser.add_argument("file", nargs="?", help="CSV or Parquet file to analyze")
     parser.add_argument(
-        "--show-sql", action="store_true", help="Show generated SQL queries"
+        "-p", "--prompt", help="Run a single query in non-interactive mode"
     )
-    parser.add_argument("--prompt", help="Run a single query in non-interactive mode")
     parser.add_argument(
+        "-c",
         "--config-info",
         action="store_true",
         help="Show configuration file location and exit",
+    )
+    parser.add_argument(
+        "-q", "--show-sql", action="store_true", help="Show generated SQL queries"
+    )
+    parser.add_argument(
+        "-d",
+        "--show-data",
+        action="store_true",
+        help="Show detailed dataset information and raw query results",
+    )
+    parser.add_argument(
+        "-s",
+        "--show-schema",
+        action="store_true",
+        help="Show detailed column information table",
     )
 
     args = parser.parse_args()
@@ -533,7 +626,7 @@ def main():
     schema_info = get_schema(con)
 
     console.print("[green]Data loaded successfully![/green] ✨")
-    show_basic_stats(con, console)
+    show_basic_stats(con, console, args.show_schema)
 
     # Non-interactive mode
     if args.prompt:
@@ -545,6 +638,7 @@ def main():
             args.show_sql,
             console,
             deployment_name,
+            args.show_data,
         )
         return
 
@@ -590,6 +684,7 @@ def main():
             args.show_sql,
             console,
             deployment_name,
+            args.show_data,
         )
         console.print()  # Add blank line for spacing
 
