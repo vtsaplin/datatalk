@@ -37,20 +37,26 @@ Whether you're analyzing marketing campaigns, exploring user behavior, or invest
 
 ```bash
 # Using pip
-pip install datatalk
+pip install datatalk-cli
 
-# Using uv
-uv add datatalk
+# Using uv  
+uv add datatalk-cli
 ```
 
 ### Homebrew Installation
 
 ```bash
-# Add the tap
-brew tap tsaplin/datatalk
+# Will be available when Homebrew tap is created
+# brew tap vtsaplin/tools
+# brew install datatalk-cli
+```
 
-# Install datatalk
-brew install datatalk
+### From Source
+
+```bash
+git clone https://github.com/vtsaplin/datatalk.git
+cd datatalk
+uv run datatalk-cli --help
 ```
 
 ## Setting Up Your Environment
@@ -75,7 +81,41 @@ AZURE_OPENAI_API_KEY=your-api-key-here
 To view your current configuration:
 
 ```bash
-datatalk --config-info
+```bash
+datatalk-cli --config-info
+```
+
+## Usage Examples
+
+### Interactive Mode
+```bash
+# Analyze sales data interactively
+datatalk-cli sample_data/sales_data.csv
+
+# During development
+uv run datatalk-cli sample_data/sales_data.csv
+```
+
+### Direct Query Mode
+```bash
+# Ask a specific question directly
+datatalk-cli sample_data/employees.csv "Show hiring patterns by year"
+
+# During development  
+uv run datatalk-cli sample_data/employees.csv "Show hiring patterns by year"
+```
+
+### More Examples
+```bash
+# Inventory analysis
+datatalk-cli sample_data/inventory.csv "Which products are running low?"
+
+# Customer insights
+datatalk-cli sample_data/customers.csv "What are the top customer segments?"
+
+# Analyze customer data interactively
+datatalk-cli sample_data/customers.csv
+```
 ```
 
 ## Usage Examples with Sample Data
@@ -108,11 +148,11 @@ uv run datatalk sample_data/customers.csv
 
 ```bash
 # Clone the repository
-git clone https://github.com/tsaplin/datatalk.git
+git clone https://github.com/vtsaplin/datatalk.git
 cd datatalk
 
 # Run directly
-uv run datatalk --help
+uv run datatalk-cli --help
 ```
 
 ### Testing
@@ -128,3 +168,32 @@ Run all tests:
 ```bash
 uv run pytest
 ```
+
+### Releasing
+
+This project includes automated release scripts for publishing to multiple platforms. See [RELEASE.md](./RELEASE.md) for complete documentation.
+
+**Quick release commands:**
+```bash
+# Complete release to all platforms
+./release_all.sh 0.1.3
+
+# Individual platform releases  
+./release_github.sh 0.1.3    # GitHub only
+./release_pypi.sh 0.1.3      # PyPI only
+./release_homebrew.sh 0.1.3  # Homebrew only
+
+# Test on TestPyPI first
+./release_pypi.sh 0.1.3 --test
+```
+
+**Available release scripts:**
+- `release_all.sh` - Master script for complete releases
+- `release_github.sh` - GitHub releases and tags
+- `release_pypi.sh` - PyPI package publishing  
+- `release_homebrew.sh` - Homebrew formula updates
+
+For detailed setup instructions and troubleshooting, see:
+- [RELEASE.md](./RELEASE.md) - Complete release process documentation
+- [PYPI_SETUP.md](./PYPI_SETUP.md) - PyPI configuration details
+- [HOMEBREW_SETUP.md](./HOMEBREW_SETUP.md) - Homebrew tap setup

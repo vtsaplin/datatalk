@@ -1,146 +1,171 @@
-# Homebrew Installation Guide for Datatalk
+# Homebrew Setup Guide for DataTalk CLI
 
-This guide explains how to make Datatalk installable via Homebrew.
+This guide explains how to set up Homebrew installation for DataTalk CLI using our automated release process.
 
-## Prerequisites
+## Overview
 
-1. **GitHub Repository**: Your project needs to be hosted on GitHub
-2. **Releases**: You need to create GitHub releases with version tags
-3. **Homebrew Tap**: You can either submit to the main Homebrew repository or create your own tap
+DataTalk CLI uses an automated release process that maintains a Homebrew formula in the repository. The formula is automatically updated by our release scripts to use GitHub release tarballs as the source.
 
-## Steps to Make Datatalk Installable via Homebrew
+## Current Homebrew Configuration
 
-### 1. Set up GitHub Repository
+### Formula Details
+- **Package Name**: `datatalk-cli` 
+- **Command Name**: `datatalk-cli`
+- **Formula File**: `homebrew/datatalk-cli.rb`
+- **Class Name**: `DatatalkCli`
+- **Source**: GitHub release tarballs
+- **Python Version**: 3.11
 
-First, create a GitHub repository and push your code:
+### Current Formula Structure
+```ruby
+class DatatalkCli < Formula
+  include Language::Python::Virtualenv
 
+  desc "Query CSV and Parquet data with natural language"
+  homepage "https://github.com/vtsaplin/datatalk"
+  url "https://github.com/vtsaplin/datatalk/archive/refs/tags/vX.X.X.tar.gz"
+  sha256 "CALCULATED_AUTOMATICALLY"
+  license "MIT"
+  head "https://github.com/vtsaplin/datatalk.git", branch: "main"
+
+  depends_on "python@3.11"
+
+  def install
+    virtualenv_install_with_resources
+  end
+
+  test do
+    system "#{bin}/datatalk-cli", "--help"
+  end
+end
+```
+## Automated Release Process
+
+### Using Release Scripts
+
+Our release process automatically manages the Homebrew formula. The recommended approach is:
+
+**Complete Release (All Platforms):**
 ```bash
-# Initialize git if not already done
-git init
-git add .
-git commit -m "Initial commit"
-
-# Add your GitHub repository as origin
-git remote add origin https://github.com/YOUR_USERNAME/datatalk.git
-git branch -M main
-git push -u origin main
+./release_all.sh 0.1.2
 ```
 
-### 2. Create a GitHub Release
-
-Create a release with a version tag:
-
+**Homebrew Only:**
 ```bash
-# Tag the current commit
-git tag v0.1.0
-git push origin v0.1.0
+./release_homebrew.sh 0.1.2
 ```
 
-Or create the release through GitHub's web interface, or use the provided script:
+### What the Release Script Does
 
-```bash
-./release_github.sh 0.1.0
-```
+The `release_homebrew.sh` script:
 
-### 3. Update the Homebrew Formula
+1. Downloads the GitHub release tarball for the specified version
+2. Calculates the SHA256 hash automatically
+3. Updates `homebrew/datatalk-cli.rb` with:
+   - New version number in URL
+   - Correct SHA256 hash
+4. Creates a backup of the previous formula
+5. Shows a diff of the changes
+6. Commits the updated formula
 
-After creating the release, you need to update the formula with the new version and SHA256 hash.
+### Manual Process (Not Recommended)
 
-#### Option A: Automated (Recommended)
+If you need to update manually for some reason:
 
-Use the provided Homebrew release script:
-
-```bash
-./release_homebrew.sh 0.1.0
-```
-
-This script will:
-- Download the release tarball and calculate the SHA256 hash
-- Update the formula file automatically
-- Show you the changes made
-- Optionally test the formula
-
-#### Option B: Manual
-
-1. Download the release tarball to get its SHA256 hash:
+1. Create GitHub release first:
    ```bash
-   curl -L https://github.com/tsaplin/datatalk/archive/refs/tags/v0.1.0.tar.gz | shasum -a 256
+   git tag v0.1.2
+   git push origin v0.1.2
+   gh release create v0.1.2 --generate-notes
    ```
 
-2. Update the `homebrew/datatalk.rb` file:
-   - Replace the version number in the URL
-   - Replace `SHA256_HASH_HERE` with the actual SHA256 hash from step 1
+2. Calculate SHA256 hash:
+   ```bash
+   curl -sL https://github.com/vtsaplin/datatalk/archive/refs/tags/v0.1.2.tar.gz | shasum -a 256
+   ```
 
-### 4. Option A: Create Your Own Homebrew Tap
+3. Update `homebrew/datatalk-cli.rb` manually with new URL and SHA256
 
-Create your own Homebrew tap (recommended for easier maintenance):
+## Distribution Options
 
+### Option 1: Local Formula (Current Setup)
+
+Users can install directly from the repository:
 ```bash
-# Create a new repository for your tap
-# Name it: homebrew-datatalk
-# Structure:
-# homebrew-datatalk/
-#   Formula/
-#     datatalk.rb
+# Clone the repository
+git clone https://github.com/vtsaplin/datatalk.git
+cd datatalk
 
-# Users can then install with:
-# brew tap YOUR_USERNAME/datatalk
-# brew install datatalk
-```
-
-### 5. Option B: Submit to Official Homebrew
-
-For official Homebrew inclusion:
-
-1. Fork the [Homebrew/homebrew-core](https://github.com/Homebrew/homebrew-core) repository
-2. Add your formula to `Formula/datatalk.rb`
-3. Submit a pull request
-
-### 6. Test the Installation
-
-Test your formula locally:
-
-```bash
 # Install from local formula
-brew install --build-from-source ./homebrew/datatalk.rb
+brew install --build-from-source ./homebrew/datatalk-cli.rb
 
-# Or if using a tap:
-brew tap YOUR_USERNAME/datatalk
-brew install datatalk
+# Test installation
+datatalk-cli --help
 ```
 
-## Formula Explanation
+### Option 2: Create a Homebrew Tap (Future)
 
-The `datatalk.rb` formula:
+Create your own tap for easier distribution:
 
-- **desc**: Short description of the tool
-- **homepage**: Project homepage (GitHub repository)
-- **url**: Download URL for the source code
-- **sha256**: SHA256 hash of the source tarball
-- **license**: Software license
-- **depends_on**: System dependencies (Python 3.11)
-- **install**: Installation method using `virtualenv_install_with_resources`
-- **test**: Basic test to verify installation
+1. Create a new repository: `homebrew-tools`
+2. Copy the formula to `Formula/datatalk-cli.rb`
+3. Users install with:
+   ```bash
+   brew tap vtsaplin/tools
+   brew install datatalk-cli
+   ```
 
-## Updating Versions
+### Option 3: Submit to Official Homebrew (Future)
 
-For each new release:
+For maximum reach, submit to Homebrew core:
+1. Fork [Homebrew/homebrew-core](https://github.com/Homebrew/homebrew-core)
+2. Add formula to `Formula/datatalk-cli.rb`  
+3. Submit pull request
 
-1. Create a new git tag and GitHub release
-2. Update the version number and SHA256 hash in the formula
-3. Commit and push the updated formula
+## Testing the Formula
 
-## Example Usage After Installation
-
-Once installed via Homebrew, users can run:
+After any update, test locally:
 
 ```bash
-datatalk --help
-datatalk sample_data.csv --prompt "Show me the top 10 entries"
+# Test the current formula
+brew install --build-from-source ./homebrew/datatalk-cli.rb
+
+# Verify installation
+datatalk-cli --version
+datatalk-cli --help
+
+# Test with sample data
+datatalk-cli sample_data/employees.csv "Show me the data structure"
+
+# Uninstall for clean testing
+brew uninstall datatalk-cli
 ```
 
-## Notes
+## Important Notes
 
-- The formula uses `virtualenv_install_with_resources` which automatically handles Python dependencies
-- Homebrew will create an isolated Python virtual environment for Datatalk
-- Users don't need to worry about Python dependency conflicts
+### Consistent Naming
+- **Package**: `datatalk-cli` (what you install)
+- **Command**: `datatalk-cli` (what you run)
+- **Formula**: `DatatalkCli` (Ruby class name)
+- **File**: `datatalk-cli.rb` (formula filename)
+
+### Source Strategy
+- Uses GitHub release tarballs (not PyPI)
+- Ensures consistency with git tags
+- Allows users to install without PyPI dependency
+- Automatically calculated SHA256 hashes
+
+### Python Environment
+- Creates isolated virtual environment
+- Uses Python 3.11 as dependency
+- Installs all Python dependencies automatically
+- No conflicts with system Python packages
+
+## Release Script Integration
+
+The Homebrew setup is fully integrated with our release scripts:
+
+- `release_all.sh` - Includes Homebrew update
+- `release_homebrew.sh` - Dedicated Homebrew updates  
+- `release_github.sh` - Creates necessary GitHub releases
+- All scripts maintain version consistency across platforms
