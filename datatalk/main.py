@@ -269,6 +269,149 @@ User question: {question}
     return sql
 
 
+def generate_sample_queries(
+    con: duckdb.DuckDBPyConnection,
+    client: AzureOpenAI,
+    deployment_name: str,
+    schema_info: str,
+) -> list[str]:
+    """Generate sample queries using LLM analysis of the actual data."""
+    try:
+        # Get basic data info for LLM analysis
+        result = con.execute("SELECT COUNT(*) FROM events").fetchone()
+        row_count = result[0] if result else 0
+        columns = con.execute("PRAGMA table_info('events')").fetchall()
+
+        # Get sample data to help LLM understand the content
+        sample_data = con.execute("SELECT * FROM events LIMIT 5").fetchall()
+        column_names = [col[1] for col in columns]
+
+        # Format sample data for LLM
+        sample_rows = []
+        for row in sample_data:
+            row_dict = {}
+            for i, value in enumerate(row):
+                if i < len(column_names):
+                    # Truncate long values
+                    str_value = str(value)
+                    if len(str_value) > 50:
+                        str_value = str_value[:50] + "..."
+                    row_dict[column_names[i]] = str_value
+            sample_rows.append(row_dict)
+
+        # Create prompt for LLM
+        prompt = f"""
+You are a data analyst. Given this dataset information, suggest 6 interesting
+and practical questions that a user might want to ask about this data.
+
+Dataset Info:
+- Schema: {schema_info}
+- Total rows: {row_count:,}
+- Sample data (first 5 rows): {sample_rows}
+
+Requirements:
+1. Generate questions that are specific to this data
+2. Focus on actionable insights and patterns
+3. Mix simple and analytical questions
+4. Questions should be in natural language
+5. Return ONLY the questions, one per line
+6. No numbering or bullet points
+
+Example format:
+What is the total number of pageviews?
+Which device type has the highest bounce rate?
+"""
+
+        response = client.chat.completions.create(
+            model=deployment_name,
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.3,
+            max_tokens=400,
+        )
+
+        content = response.choices[0].message.content
+        if content is None:
+            raise ValueError("No content returned from LLM")
+
+        # Parse the response into individual queries
+        queries = [q.strip() for q in content.strip().split("\n") if q.strip()]
+
+        # Filter out any numbered or bulleted items
+        clean_queries = []
+        for query in queries:
+            # Remove common prefixes
+            query = query.lstrip("- •*").strip()
+            if query and not query[0].isdigit():
+                clean_queries.append(query)
+            elif query and query[0].isdigit():
+                # Remove number prefix like "1. "
+                parts = query.split(".", 1)
+                if len(parts) > 1:
+                    clean_queries.append(parts[1].strip())
+
+        return clean_queries[:6]  # Limit to 6 queries
+
+    except Exception as e:
+        # Fallback to basic queries if LLM fails
+        fallback_msg = f"Warning: Could not generate LLM-based queries ({e})."
+        print(f"{fallback_msg} Using fallback.")
+        return [
+            "How many rows are in the dataset?",
+            "Show me the first 10 rows",
+            "What are the column names?",
+            "Show me some summary statistics",
+            "What are the unique values in the first column?",
+            "Show me the data grouped by the first categorical column",
+        ]
+
+
+def show_sample_queries(sample_queries: list[str], console: Console) -> None:
+    """Display sample queries that users can choose from."""
+    console.print("[bold green]💡 Questions derived from your data[/bold green]")
+    console.print("[dim]Choose a question to run or type your own:[/dim]\n")
+
+    for i, query in enumerate(sample_queries, 1):
+        console.print(f"[cyan]{i}.[/cyan] {query}")
+
+    num = len(sample_queries) + 1
+    option_text = f"[cyan]{num}.[/cyan] [dim]Type my own question[/dim]"
+    console.print(option_text)
+    console.print()
+
+
+def get_user_choice(console: Console, sample_queries: list[str]) -> str | None:
+    """Get user's choice for sample query or custom input."""
+    max_choice = len(sample_queries) + 1
+
+    while True:
+        try:
+            prompt_text = (
+                f"[bold blue]Choose a question (1-{max_choice}) "
+                f"or press Enter to type your own[/bold blue]"
+            )
+            choice = Prompt.ask(prompt_text, console=console, default="")
+
+            if not choice.strip():
+                # User pressed Enter, they want to type their own question
+                return None
+
+            try:
+                choice_num = int(choice)
+                if 1 <= choice_num <= len(sample_queries):
+                    return sample_queries[choice_num - 1]
+                elif choice_num == max_choice:
+                    # User chose "Type my own question"
+                    return None
+                else:
+                    msg = f"[red]Please enter a number between 1 and {max_choice}[/red]"
+                    console.print(msg)
+            except ValueError:
+                console.print("[red]Please enter a valid number or Enter[/red]")
+
+        except (EOFError, KeyboardInterrupt):
+            return "quit"
+
+
 def process_query(
     client: AzureOpenAI,
     query: str,
@@ -311,7 +454,8 @@ def process_query(
             console.print(table)
 
             if len(res) > 20:
-                console.print(f"[dim]Showing first 20 of {len(res)} rows[/dim]")
+                msg = f"[dim]Showing first 20 of {len(res)} rows[/dim]"
+                console.print(msg)
 
     except Exception as e:
         console.print(f"[red]Error:[/red] {e}")
@@ -325,7 +469,7 @@ def main():
 
     # Parse command line arguments
     parser = argparse.ArgumentParser(
-        description="Ask questions about CSV/Parquet data using natural language"
+        description=("Ask questions about CSV/Parquet data using natural language")
     )
     parser.add_argument("file", nargs="?", help="CSV or Parquet file to analyze")
     parser.add_argument(
@@ -373,7 +517,8 @@ def main():
     config = load_config()
 
     # Get Azure OpenAI configuration
-    api_key, endpoint, deployment_name, api_version = get_azure_config(config, console)
+    azure_config = get_azure_config(config, console)
+    api_key, endpoint, deployment_name, api_version = azure_config
 
     # Initialize Azure OpenAI client
     client = AzureOpenAI(
@@ -406,12 +551,31 @@ def main():
     # Interactive mode
     console.print("[dim]Type your questions ([bold]q[/bold] to quit)[/dim]\n")
 
+    # Generate sample queries once to ensure consistency
+    sample_queries = generate_sample_queries(con, client, deployment_name, schema_info)
+
+    # Show sample queries to help users get started
+    show_sample_queries(sample_queries, console)
+
     while True:
         try:
-            q = Prompt.ask("[bold blue]>[/bold blue]", console=console)
+            # First check if user wants to select from sample queries
+            selected_query = get_user_choice(console, sample_queries)
+
+            if selected_query == "quit":
+                console.print("\n[dim]Goodbye! 👋[/dim]")
+                break
+            elif selected_query:
+                # User selected a sample query
+                q = selected_query
+                console.print(f"[dim]Selected: {q}[/dim]\n")
+            else:
+                # User wants to type their own question
+                q = Prompt.ask("[bold blue]>[/bold blue]", console=console)
         except (EOFError, KeyboardInterrupt):
             console.print("\n[dim]Goodbye! 👋[/dim]")
             break
+
         if q.strip().lower() in ("q", "quit", "exit"):
             console.print("[dim]Goodbye! 👋[/dim]")
             break
