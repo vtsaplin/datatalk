@@ -1,18 +1,14 @@
 # Datatalk
 
-```text
-██████   █████  ████████  █████  ████████  █████  ██      ██   ██ 
-██   ██ ██   ██    ██    ██   ██    ██    ██   ██ ██      ██  ██  
-██   ██ ███████    ██    ███████    ██    ███████ ██      █████   
-██   ██ ██   ██    ██    ██   ██    ██    ██   ██ ██      ██  ██  
-██████  ██   ██    ██    ██   ██    ██    ██   ██ ███████ ██   ██ 
-```
+> Query CSV and Parquet data with natural language.
 
-Query CSV and Parquet data with natural language.
+## The Problem
 
-## The Idea
+Large Language Models are incredibly powerful at understanding natural language, but they're terrible at crunching numbers. When you ask an LLM to analyze data, it often hallucinates statistics, makes calculation errors, or gets overwhelmed by large datasets. You end up with unreliable results and burning through expensive tokens.
 
-Datatalk bridges the gap between data analysis and everyday language. Instead of writing complex SQL queries or learning pandas syntax, you simply ask questions in plain English about your data files.
+## How It Works
+
+Datatalk solves these problems by combining the best of both worlds: AI's natural language understanding with local computation's precision and efficiency. Instead of asking an LLM to crunch numbers, Datatalk uses AI only to interpret your questions while doing all calculations locally on your machine.
 
 The tool works by:
 
@@ -23,11 +19,60 @@ The tool works by:
 
 Whether you're analyzing marketing campaigns, exploring user behavior, or investigating trends, Datatalk lets you focus on asking the right questions rather than figuring out how to code the answers.
 
-## Configuration
+## Why Choose Datatalk
+
+**Privacy & Data Security**: Your raw data never leaves your machine. Only column names and data types are shared with the AI to understand your query structure.
+
+**Deterministic Calculations**: Unlike direct LLM analysis, numerical computations produce consistent, reproducible results. This eliminates the common problem of AI hallucinating statistics or making arithmetic errors when working with data.
+
+**Token Efficiency**: Large datasets can quickly exhaust LLM token limits and become expensive to process. Datatalk sends only schema metadata and query context to the AI, allowing you to analyze gigabyte-sized files for the cost of a few hundred tokens rather than thousands.
+
+**No Code Required**: Traditional data analysis requires knowledge of pandas, SQL, or similar tools. Datatalk translates natural language questions into the appropriate data operations, making exploratory data analysis accessible without programming expertise.
+
+**Multiple Format Support**: Works with both CSV and Parquet files out of the box. Parquet support is particularly useful for large datasets as it provides better compression and faster read times compared to CSV.
+
+## Getting Started
+
+### Option 1: PyPI
+
+```bash
+# Using pip
+pip install datatalk
+
+# Using uv
+uv add datatalk
+```
+
+### Option 2: Homebrew
+
+```bash
+# Add the tap
+brew tap tsaplin/datatalk
+
+# Install datatalk
+brew install datatalk
+```
+
+### Option 3: Development Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/tsaplin/datatalk.git
+cd datatalk
+
+# Run directly
+uv run datatalk --help
+```
+
+## Setting Up Your Environment
 
 Datatalk requires Azure OpenAI credentials. You can configure them in two ways:
 
-### Option 1: Environment File (Recommended)
+### Option 1: Interactive Configuration (Recommended)
+
+If no `.env` file is found, the tool will prompt you for the two required values and save them to `~/.config/datatalk/config.json`.
+
+### Option 2: Environment File
 
 Create a `.env` file with just these two lines:
 
@@ -38,17 +83,13 @@ AZURE_OPENAI_API_KEY=your-api-key-here
 
 **That's it!** The tool automatically extracts the endpoint, deployment name, and API version from the target URL.
 
-### Option 2: Interactive Configuration
-
-If no `.env` file is found, the tool will prompt you for the two required values and save them to `~/.config/datatalk/config.json`.
-
 To view your current configuration:
 
 ```bash
 datatalk --config-info
 ```
 
-## Usage
+## Quick Start Examples
 
 ```bash
 uv run datatalk sample_data.csv
@@ -59,43 +100,3 @@ Or with Parquet files:
 ```bash
 uv run datatalk sample_data.parquet
 ```
-
-## Common Marketing Queries
-
-Campaign performance:
-
-```bash
-uv run datatalk sample_data.csv --prompt "Which campaigns have the highest click-through rates?"
-```
-
-Device analysis:
-
-```bash
-uv run datatalk sample_data.csv --prompt "Compare mobile vs desktop performance"
-```
-
-Traffic quality:
-
-```bash
-uv run datatalk sample_data.csv --prompt "Show top 10 URLs by total pageviews"
-```
-
-Bounce rate insights:
-
-```bash
-uv run datatalk sample_data.csv --prompt "Show campaigns with bounce rates under 50% and their actual rates"
-```
-
-Click efficiency:
-
-```bash
-uv run datatalk sample_data.csv --prompt "Find URLs with highest clicks per session"
-```
-
-Regional performance:
-
-```bash
-uv run datatalk sample_data.csv --prompt "Compare performance by country based on URL patterns"
-```
-
-> **Note:** All examples above work with both CSV and Parquet files. Simply replace `sample_data.csv` with `sample_data.parquet` or any other supported file.
