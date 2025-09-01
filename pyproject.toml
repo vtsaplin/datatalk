@@ -1,0 +1,20 @@
+[project]
+name = "datatalk"
+version = "0.1.0"
+description = "A minimalistic hello world app"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "duckdb>=0.8.0",
+    "python-dotenv>=1.0.0",
+    "pandas>=2.0.0",
+    "openai>=1.102.0",
+    "rich>=13.0.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project.scripts]
+datatalk = "datatalk.main:main"
