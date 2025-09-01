@@ -4,11 +4,11 @@
 
 ```bash
 # Complete release to all platforms
-./release_all.sh 0.1.3
+./release_all.sh X.Y.Z
 
 # Test first (recommended)
-./release_pypi.sh 0.1.3 --test
-./release_all.sh 0.1.3
+./release_pypi.sh X.Y.Z --test
+./release_all.sh X.Y.Z
 ```
 
 ## 🔧 One-Time Setup
@@ -46,9 +46,9 @@ uv --version      # Package manager working
 ## 🛠️ Individual Scripts
 
 ```bash
-./release_github.sh 0.1.3     # GitHub release only
-./release_pypi.sh 0.1.3       # PyPI release only  
-./release_homebrew.sh 0.1.3   # Homebrew formula only
+./release_github.sh X.Y.Z     # GitHub release only
+./release_pypi.sh X.Y.Z       # PyPI release only  
+./release_homebrew.sh X.Y.Z   # Homebrew formula only
 ```
 
 ## 🔍 Troubleshooting
