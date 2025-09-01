@@ -18,7 +18,9 @@ These rules help GitHub Copilot work correctly in this repo.
 - Language: Python 3, follow PEP 8.
 - Prefer small, typed functions with clear interfaces.
 - Do **not** add extra methods or functions unless explicitly needed.
+- Do **not** add emoji to source code and scripts unless explicitly asked.
 - Use `pytest` for tests (`uv run pytest`).
+- Generate only the most essential and minimalistic code - include only what is strictly needed.
 
 ## Testing
 
