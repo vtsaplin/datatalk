@@ -522,7 +522,7 @@ def process_query(
                     console.print(msg)
 
             # Send results to LLM for summarization
-            console.print("\n[dim]Getting summary from AI...[/dim]")
+            console.print("[dim]Getting summary from AI...[/dim]")
             try:
                 interpretation = interpret_results(
                     client, query, sql, res, deployment_name
