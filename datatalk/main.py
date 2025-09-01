@@ -10,7 +10,52 @@ from rich.console import Console
 from rich.table import Table
 from rich.prompt import Prompt
 from rich.markdown import Markdown
+from rich import box
 from typing import Union
+
+
+class TokenUsageTracker:
+    """Track token usage across all API calls."""
+
+    def __init__(self):
+        self.input_tokens = 0
+        self.output_tokens = 0
+        self.total_requests = 0
+
+    def add_usage(self, usage):
+        """Add usage from an API response."""
+        if usage:
+            self.input_tokens += getattr(usage, "prompt_tokens", 0)
+            self.output_tokens += getattr(usage, "completion_tokens", 0)
+            self.total_requests += 1
+
+    def get_total_tokens(self) -> int:
+        """Get total tokens used."""
+        return self.input_tokens + self.output_tokens
+
+    def print_statistics(self, console: Console) -> None:
+        """Print usage statistics."""
+        if self.total_requests == 0:
+            console.print("[dim]No API calls were made.[/dim]")
+            return
+
+        console.print("\n[bold cyan]Token Usage Statistics[/bold cyan]")
+
+        # Create a nice table for the statistics
+        table = Table(show_header=True, header_style="bold magenta", box=box.SIMPLE)
+        table.add_column("Metric", style="cyan")
+        table.add_column("Value", style="yellow", justify="right")
+
+        table.add_row("API Requests", f"{self.total_requests:,}")
+        table.add_row("Input Tokens", f"{self.input_tokens:,}")
+        table.add_row("Output Tokens", f"{self.output_tokens:,}")
+        table.add_row("Total Tokens", f"{self.get_total_tokens():,}")
+
+        console.print(table)
+
+
+# Global token tracker instance
+token_tracker = TokenUsageTracker()
 
 
 def print_logo(console: Console) -> None:
@@ -94,7 +139,7 @@ def get_env_var(name: str, config: dict[str, str], console: Console) -> str:
             console.print(f"[red]Error:[/red] Unknown configuration: {name}")
             sys.exit(1)
     except (KeyboardInterrupt, EOFError):
-        console.print("\n[dim]Operation cancelled. Goodbye! 👋[/dim]")
+        console.print("\n[dim]Operation cancelled. Goodbye![/dim]")
         sys.exit(0)
 
     if not value:
@@ -214,7 +259,7 @@ def detect_provider(config: dict[str, str], console: Console) -> str:
                 return "openai"
             console.print("[red]Please choose '1' (Azure) or '2' (OpenAI)[/red]")
         except (KeyboardInterrupt, EOFError):
-            console.print("\n[dim]Operation cancelled. Goodbye! 👋[/dim]")
+            console.print("\n[dim]Operation cancelled. Goodbye![/dim]")
             sys.exit(0)
 
 
@@ -273,7 +318,7 @@ def get_schema(con: duckdb.DuckDBPyConnection) -> str:
 
 
 def show_basic_stats(
-    con: duckdb.DuckDBPyConnection, console: Console, show_schema: bool = False
+    con: duckdb.DuckDBPyConnection, console: Console, show_schema: bool = True
 ) -> None:
     """Show basic statistics about the loaded data."""
     # Get row count
@@ -291,7 +336,9 @@ def show_basic_stats(
     # Show column info in a table only if show_schema is True
     if show_schema and columns:
         table = Table(
-            show_header=True, header_style="bold magenta", title="Column Information"
+            show_header=True,
+            header_style="bold magenta",
+            box=box.SIMPLE,
         )
         table.add_column("Column", style="cyan")
         table.add_column("Type", style="yellow")
@@ -346,6 +393,9 @@ User question: {question}
         temperature=float(os.getenv("MODEL_TEMPERATURE", "0.1")),
         max_tokens=500,
     )
+
+    # Track token usage
+    token_tracker.add_usage(response.usage)
 
     content = response.choices[0].message.content
     if content is None:
@@ -425,6 +475,9 @@ Which device type has the highest bounce rate?
             temperature=0.3,
             max_tokens=400,
         )
+
+        # Track token usage
+        token_tracker.add_usage(response.usage)
 
         content = response.choices[0].message.content
         if content is None:
@@ -560,6 +613,9 @@ Maximum 100 words.
         max_tokens=200,
     )
 
+    # Track token usage
+    token_tracker.add_usage(response.usage)
+
     content = response.choices[0].message.content
     if content is None:
         raise ValueError("No content returned from AI")
@@ -575,7 +631,7 @@ def process_query(
     show_sql: bool,
     console: Console,
     model_name: str,
-    show_data: bool = False,
+    show_data: bool = True,
 ):
     """Process a single query and display results."""
     try:
@@ -593,7 +649,11 @@ def process_query(
             # Only show raw data table if show_data flag is set
             if show_data:
                 # Create a rich table for better formatting
-                table = Table(show_header=True, header_style="bold magenta")
+                table = Table(
+                    show_header=True,
+                    header_style="bold magenta",
+                    box=box.SIMPLE,
+                )
 
                 # Add columns
                 for col in res.columns:
@@ -661,16 +721,20 @@ def main():
             "-q", "--show-sql", action="store_true", help="Show generated SQL queries"
         )
         parser.add_argument(
-            "-d",
-            "--show-data",
+            "--hide-data",
             action="store_true",
-            help="Show detailed dataset information and raw query results",
+            help="Hide detailed dataset information and raw query results",
         )
         parser.add_argument(
-            "-s",
-            "--show-schema",
+            "--hide-schema",
             action="store_true",
-            help="Show detailed column information table",
+            help="Hide detailed column information table",
+        )
+        parser.add_argument(
+            "-t",
+            "--show-tokens",
+            action="store_true",
+            help="Show token usage statistics",
         )
         parser.add_argument(
             "--provider",
@@ -740,8 +804,8 @@ def main():
         load_data_to_duckdb(path, con)
         schema_info = get_schema(con)
 
-        console.print("[green]Data loaded successfully![/green] ✨")
-        show_basic_stats(con, console, args.show_schema)
+        console.print("[green]Data loaded successfully![/green]")
+        show_basic_stats(con, console, not args.hide_schema)
 
         # Non-interactive mode
         if args.prompt:
@@ -753,18 +817,24 @@ def main():
                 args.show_sql,
                 console,
                 model_name,
-                args.show_data,
+                not args.hide_data,
             )
+            # Show token usage statistics before exiting
+            if args.show_tokens:
+                token_tracker.print_statistics(console)
             return
 
         # Interactive mode
-        console.print("\n[bold green]🤖 AI Assistant Ready![/bold green]")
-        console.print("Ask questions about your data. Type 'quit' or 'exit' to stop.\n")
+        console.print("[bold green]AI Assistant Ready![/bold green]")
+        console.print(
+            "Ask questions about your data. "
+            "Type 'quit', 'exit', or 'stop' to quit.\n"
+        )
 
         # Generate sample queries
         sample_queries = generate_sample_queries(con, client, model_name, schema_info)
         if sample_queries:
-            console.print("[bold]💡 Suggested questions to get started:[/bold]")
+            console.print("[bold]Suggested questions to get started:[/bold]")
             for i, query in enumerate(sample_queries, 1):
                 console.print(f"  {i}. {query}")
             console.print()
@@ -773,11 +843,17 @@ def main():
             try:
                 q = Prompt.ask("[bold blue]Ask a question[/bold blue]")
             except EOFError:
-                console.print("\n[dim]Goodbye! 👋[/dim]")
+                console.print("\n[dim]Goodbye![/dim]")
+                # Show token usage statistics before exiting
+                if args.show_tokens:
+                    token_tracker.print_statistics(console)
                 break
 
-            if q.lower() in ["quit", "exit", "q"]:
-                console.print("[dim]Goodbye! 👋[/dim]")
+            if q.lower() in ["quit", "exit", "q", "stop", "bye", "goodbye"]:
+                console.print("[dim]Goodbye![/dim]")
+                # Show token usage statistics before exiting
+                if args.show_tokens:
+                    token_tracker.print_statistics(console)
                 break
             if not q.strip():
                 continue
@@ -790,15 +866,21 @@ def main():
                 args.show_sql,
                 console,
                 model_name,
-                args.show_data,
+                not args.hide_data,
             )
             console.print()  # Add blank line for spacing
 
     except KeyboardInterrupt:
-        console.print("\n[dim]Operation cancelled. Goodbye! 👋[/dim]")
+        console.print("\n[dim]Operation cancelled. Goodbye![/dim]")
+        # Show token usage statistics before exiting
+        if "args" in locals() and hasattr(args, "show_tokens") and args.show_tokens:
+            token_tracker.print_statistics(console)
         sys.exit(0)
     except Exception as e:
         console.print(f"\n[red]Error:[/red] {e}")
+        # Show token usage statistics before exiting
+        if "args" in locals() and hasattr(args, "show_tokens") and args.show_tokens:
+            token_tracker.print_statistics(console)
         sys.exit(1)
 
 
