@@ -193,7 +193,4 @@ This project includes automated release scripts for publishing to multiple platf
 - `release_pypi.sh` - PyPI package publishing  
 - `release_homebrew.sh` - Homebrew formula updates
 
-For detailed setup instructions and troubleshooting, see:
-- [RELEASE.md](./RELEASE.md) - Complete release process documentation
-- [PYPI_SETUP.md](./PYPI_SETUP.md) - PyPI configuration details
-- [HOMEBREW_SETUP.md](./HOMEBREW_SETUP.md) - Homebrew tap setup
+For detailed setup instructions and troubleshooting, see [RELEASE.md](./RELEASE.md) for complete release process documentation.

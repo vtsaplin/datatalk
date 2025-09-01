@@ -266,8 +266,11 @@ uv run twine check dist/*   # Validate built packages
 - **PyPI Account**: https://pypi.org/manage/account/
 - **TestPyPI**: https://test.pypi.org/project/datatalk-cli/
 
-## 📚 Additional Documentation
+## 📚 Additional Resources
 
-- [PYPI_SETUP.md](./PYPI_SETUP.md) - Detailed PyPI setup and configuration
-- [HOMEBREW_SETUP.md](./HOMEBREW_SETUP.md) - Homebrew tap creation and management
-- [README.md](./README.md) - Main project documentation
+- **PyPI Project**: https://pypi.org/project/datatalk-cli/
+- **GitHub Repository**: https://github.com/vtsaplin/datatalk
+- **GitHub Releases**: https://github.com/vtsaplin/datatalk/releases
+- **PyPI Account Management**: https://pypi.org/manage/account/
+- **TestPyPI**: https://test.pypi.org/project/datatalk-cli/
+- **Main Project Documentation**: [README.md](./README.md)
