@@ -1,28 +1,33 @@
 #!/bin/bash
 
 # Unified release script for Datatalk
-# Usage: ./release_all.sh <version> [--test-pypi] [--skip-homebrew]
-# Example: ./release_all.sh 0.1.0
-# Example: ./release_all.sh 0.1.0 --test-pypi
-# Example: ./release_all.sh 0.1.0 --skip-homebrew
+# Usage: ./release_all.sh [version] [--test-pypi] [--skip-homebrew]
+# Example: ./release_all.sh                    # Auto-increment patch version
+# Example: ./release_all.sh 0.2.0             # Use specific version
+# Example: ./release_all.sh --test-pypi        # Auto-increment + test on TestPyPI
+# Example: ./release_all.sh 0.1.5 --skip-homebrew
 
 set -e
 
-if [ $# -eq 0 ]; then
-    echo "Usage: $0 <version> [--test-pypi] [--skip-homebrew]"
-    echo "Example: $0 0.1.0"
-    echo "Example: $0 0.1.0 --test-pypi  # Test on TestPyPI first"
-    echo "Example: $0 0.1.0 --skip-homebrew  # Skip Homebrew update"
-    echo ""
-    echo "This script handles GitHub, PyPI, and Homebrew releases in the correct order."
-    exit 1
-fi
+# Function to get current version from pyproject.toml
+get_current_version() {
+    grep '^version = ' pyproject.toml | sed 's/version = "\(.*\)"/\1/'
+}
 
-VERSION=$1
+# Function to increment patch version
+increment_patch_version() {
+    local version=$1
+    local major=$(echo $version | cut -d. -f1)
+    local minor=$(echo $version | cut -d. -f2)
+    local patch=$(echo $version | cut -d. -f3)
+    echo "$major.$minor.$((patch + 1))"
+}
+
+# Parse arguments to determine version
+VERSION=""
 TEST_MODE=""
 SKIP_HOMEBREW=""
 
-# Parse arguments
 for arg in "$@"; do
     case $arg in
         --test-pypi)
@@ -31,8 +36,38 @@ for arg in "$@"; do
         --skip-homebrew)
             SKIP_HOMEBREW="true"
             ;;
+        --help|-h)
+            echo "Usage: $0 [version] [--test-pypi] [--skip-homebrew]"
+            echo ""
+            echo "Arguments:"
+            echo "  version         Specific version to release (optional - will auto-increment if not provided)"
+            echo "  --test-pypi     Test on TestPyPI first"
+            echo "  --skip-homebrew Skip Homebrew update"
+            echo ""
+            echo "Examples:"
+            echo "  $0                    # Auto-increment patch version"
+            echo "  $0 0.2.0             # Use specific version"
+            echo "  $0 --test-pypi       # Auto-increment + test mode"
+            echo "  $0 0.1.5 --skip-homebrew"
+            exit 0
+            ;;
+        *)
+            # If it's not a flag and VERSION is empty, assume it's a version number
+            if [[ ! $arg =~ ^-- ]] && [ -z "$VERSION" ]; then
+                VERSION=$arg
+            fi
+            ;;
     esac
 done
+
+# Auto-detect version if not provided
+if [ -z "$VERSION" ]; then
+    CURRENT_VERSION=$(get_current_version)
+    VERSION=$(increment_patch_version $CURRENT_VERSION)
+    echo "Auto-incrementing version: $CURRENT_VERSION → $VERSION"
+else
+    echo "Using specified version: $VERSION"
+fi
 
 TAG="v$VERSION"
 

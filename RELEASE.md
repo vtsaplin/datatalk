@@ -2,13 +2,19 @@
 
 ## 🚀 Quick Release
 
-```bash
-# Complete release to all platforms
-./release_all.sh X.Y.Z
+`## 📋 Release Steps
 
-# Test first (recommended)
-./release_pypi.sh X.Y.Z --test
-./release_all.sh X.Y.Z
+1. **Clean working directory**: `git status`
+2. **Run release**: `./release_all.sh` (auto-increment) or `./release_all.sh X.Y.Z`
+3. **Follow prompts**: Enter PyPI token when asked
+4. **Verify**: Check [PyPI](https://pypi.org/project/datatalk-cli/) and [GitHub](https://github.com/vtsaplin/datatalk/releases)
+
+## 🛠️ Individual Scripts
+
+```bash
+./release_github.sh X.Y.Z     # GitHub release only
+./release_pypi.sh X.Y.Z       # PyPI release only  
+./release_homebrew.sh X.Y.Z   # Homebrew formula only
 ```
 
 ## 🔧 One-Time Setup
@@ -42,14 +48,6 @@ uv --version      # Package manager working
 2. **Run release**: `./release_all.sh X.Y.Z`
 3. **Follow prompts**: Enter PyPI token when asked
 4. **Verify**: Check [PyPI](https://pypi.org/project/datatalk-cli/) and [GitHub](https://github.com/vtsaplin/datatalk/releases)
-
-## 🛠️ Individual Scripts
-
-```bash
-./release_github.sh X.Y.Z     # GitHub release only
-./release_pypi.sh X.Y.Z       # PyPI release only  
-./release_homebrew.sh X.Y.Z   # Homebrew formula only
-```
 
 ## 🔍 Troubleshooting
 
