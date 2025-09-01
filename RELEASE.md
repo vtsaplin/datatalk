@@ -1,276 +1,74 @@
-# Release Process Documentation
+# Release Process
 
-This document provides a complete guide for releasing new versions of DataTalk CLI across all platforms: GitHub, PyPI, and Homebrew.
-
-## 🚀 Quick Release Commands
+## 🚀 Quick Release
 
 ```bash
-# For a complete release to all platforms
-./release_all.sh 0.1.2
+# Complete release to all platforms
+./release_all.sh 0.1.3
 
-# For individual platform releases
-./release_github.sh 0.1.2    # GitHub only
-./release_pypi.sh 0.1.2      # PyPI only  
-./release_homebrew.sh 0.1.2  # Homebrew only
-
-# For testing PyPI first
-./release_pypi.sh 0.1.2 --test
+# Test first (recommended)
+./release_pypi.sh 0.1.3 --test
+./release_all.sh 0.1.3
 ```
 
-## 📋 Release Scripts Overview
+## 🔧 One-Time Setup
 
-### 1. `release_all.sh` - Master Release Script
-**Purpose**: Orchestrates complete release across all platforms
-**Usage**: `./release_all.sh <version> [--test-pypi] [--skip-homebrew]`
+### PyPI Token
 
-**What it does**:
-1. Runs `release_github.sh` to create GitHub release
-2. Runs `release_pypi.sh` to publish to PyPI
-3. Runs `release_homebrew.sh` to update Homebrew formula
-4. Provides comprehensive status reporting
+Store your PyPI API token securely:
 
-**Examples**:
 ```bash
-./release_all.sh 0.1.2                    # Full production release
-./release_all.sh 0.1.2 --test-pypi        # Test on TestPyPI first
-./release_all.sh 0.1.2 --skip-homebrew    # Skip Homebrew update
-```
-
-### 2. `release_github.sh` - GitHub Release
-**Purpose**: Creates GitHub tags and releases
-**Usage**: `./release_github.sh <version>`
-
-**What it does**:
-1. Updates version in `pyproject.toml`
-2. Commits version change
-3. Creates and pushes git tag
-4. Provides next steps for manual GitHub release creation
-
-### 3. `release_pypi.sh` - PyPI Release  
-**Purpose**: Publishes package to PyPI or TestPyPI
-**Usage**: `./release_pypi.sh <version> [--test]`
-
-**What it does**:
-1. Updates version in `pyproject.toml`
-2. Cleans previous builds
-3. Builds source distribution and wheel
-4. Uploads to PyPI or TestPyPI
-5. Creates git tag and commits (production mode only)
-
-**Examples**:
-```bash
-./release_pypi.sh 0.1.2          # Production PyPI release
-./release_pypi.sh 0.1.2 --test   # TestPyPI release for testing
-```
-
-### 4. `release_homebrew.sh` - Homebrew Formula Update
-**Purpose**: Updates Homebrew formula with new version and SHA256
-**Usage**: `./release_homebrew.sh <version>`
-
-**What it does**:
-1. Downloads release tarball from GitHub
-2. Calculates SHA256 hash
-3. Updates `homebrew/datatalk-cli.rb` formula
-4. Creates backup of previous formula
-5. Offers to test the formula locally
-
-## 🔧 Prerequisites Setup
-
-### 1. PyPI Authentication
-
-#### Option A: Store in Keychain (Recommended)
-```bash
-# Install keyring support
-uv add keyring
-
-# Store token in keychain (will prompt for token)
+# Option 1: In keychain (recommended)
 uv run python -c "
-import keyring
-import getpass
-token = getpass.getpass('Enter your PyPI token: ')
+import keyring, getpass
+token = getpass.getpass('PyPI token: ')
 keyring.set_password('https://upload.pypi.org/legacy/', '__token__', token)
-print('Token stored in keychain!')
 "
+
+# Option 2: Environment variable
+export TWINE_PASSWORD=pypi-AgEIcHl...  # Add to ~/.zshrc
 ```
 
-#### Option B: Environment Variables
+### Verify Tools
+
 ```bash
-# Add to your ~/.zshrc or ~/.bashrc
-export TWINE_USERNAME=__token__
-export TWINE_PASSWORD=pypi-AgEIcHl...  # Your actual token
-
-# Reload shell
-source ~/.zshrc
+gh auth status    # GitHub CLI authenticated
+uv --version      # Package manager working
 ```
 
-#### Option C: Configuration File
+## � Release Steps
+
+1. **Clean working directory**: `git status`
+2. **Run release**: `./release_all.sh X.Y.Z`
+3. **Follow prompts**: Enter PyPI token when asked
+4. **Verify**: Check [PyPI](https://pypi.org/project/datatalk-cli/) and [GitHub](https://github.com/vtsaplin/datatalk/releases)
+
+## 🛠️ Individual Scripts
+
 ```bash
-# Create ~/.pypirc
-cat > ~/.pypirc << 'EOF'
-[distutils]
-index-servers =
-    pypi
-    testpypi
-
-[pypi]
-username = __token__
-password = pypi-AgEIcHl...  # Your actual token
-
-[testpypi]
-repository = https://test.pypi.org/legacy/
-username = __token__
-password = pypi-AgEIcHl...  # Your TestPyPI token
-EOF
-
-chmod 600 ~/.pypirc
+./release_github.sh 0.1.3     # GitHub release only
+./release_pypi.sh 0.1.3       # PyPI release only  
+./release_homebrew.sh 0.1.3   # Homebrew formula only
 ```
-
-### 2. GitHub Authentication
-Ensure GitHub CLI is authenticated:
-```bash
-gh auth status
-# If not authenticated:
-gh auth login
-```
-
-### 3. Required Tools
-```bash
-# Verify required tools are installed
-uv --version       # Package manager
-git --version      # Version control
-gh --version       # GitHub CLI
-curl --version     # For downloading and SHA256 calculation
-```
-
-## 🏗️ Project Structure
-
-```
-datatalk/
-├── release_all.sh         # Master release script
-├── release_github.sh      # GitHub release automation
-├── release_pypi.sh        # PyPI publishing
-├── release_homebrew.sh    # Homebrew formula updates
-├── homebrew/
-│   └── datatalk-cli.rb    # Homebrew formula
-├── pyproject.toml         # Package configuration
-└── docs/
-    ├── PYPI_SETUP.md      # Detailed PyPI setup
-    └── HOMEBREW_SETUP.md  # Detailed Homebrew setup
-```
-
-## 📝 Step-by-Step Release Process
-
-### For a New Release (e.g., v0.1.3):
-
-1. **Ensure clean working directory**:
-   ```bash
-   git status  # Should show "working tree clean"
-   ```
-
-2. **Run complete release**:
-   ```bash
-   ./release_all.sh 0.1.3
-   ```
-
-3. **Follow prompts**:
-   - Confirm PyPI upload when prompted
-   - Enter API token if not stored in keychain
-   - Confirm Homebrew formula update
-
-4. **Verify release**:
-   ```bash
-   # Check GitHub release
-   open https://github.com/vtsaplin/datatalk/releases
-   
-   # Check PyPI
-   open https://pypi.org/project/datatalk-cli/
-   
-   # Test installation
-   pip install datatalk-cli==0.1.3
-   datatalk-cli --version
-   ```
-
-### For Testing Before Production:
-
-1. **Test on TestPyPI first**:
-   ```bash
-   ./release_all.sh 0.1.3 --test-pypi
-   ```
-
-2. **Test installation from TestPyPI**:
-   ```bash
-   pip install --index-url https://test.pypi.org/simple/ datatalk-cli==0.1.3
-   ```
-
-3. **If testing succeeds, do production release**:
-   ```bash
-   ./release_pypi.sh 0.1.3
-   ./release_homebrew.sh 0.1.3
-   ```
 
 ## 🔍 Troubleshooting
 
-### Common Issues:
+| Problem | Solution |
+|---------|----------|
+| "Authentication failed" | Check PyPI token is stored correctly |
+| "Version already exists" | Use a new version number |
+| "Package name conflicts" | Already using `datatalk-cli` |
+| "Working directory not clean" | Commit or stash changes |
 
-1. **"Package name already exists"**:
-   - Choose a different package name in `pyproject.toml`
-   - Current name: `datatalk-cli`
+## 📦 What Gets Released
 
-2. **"Authentication failed"**:
-   - Verify PyPI token is correctly stored
-   - Check token hasn't expired
-   - Ensure token has correct permissions
+- **GitHub**: Tag + release at [GitHub Releases](https://github.com/vtsaplin/datatalk/releases)
+- **PyPI**: Package at [PyPI Project](https://pypi.org/project/datatalk-cli/)
+- **Homebrew**: Formula updated in `homebrew/datatalk-cli.rb`
 
-3. **"Version already exists"**:
-   - Use a new version number
-   - Check what versions exist: `pip index versions datatalk-cli`
-
-4. **"Homebrew formula test failed"**:
-   - This is expected if you don't have a Homebrew tap
-   - Formula is still valid for manual installation
-
-5. **"Git working directory not clean"**:
-   - Commit or stash any uncommitted changes
-   - Use `git status` to check what needs to be committed
-
-### Getting Help:
+Installation after release:
 
 ```bash
-# Check script help
-./release_all.sh --help
-./release_pypi.sh --help
-./release_homebrew.sh --help
-
-# Test individual components
-uv build                    # Test package building
-uv run twine check dist/*   # Validate built packages
+pip install datatalk-cli        # PyPI
+brew install ./homebrew/datatalk-cli.rb  # Local Homebrew
 ```
-
-## 🎯 Release Checklist
-
-- [ ] Version number updated in `pyproject.toml`
-- [ ] All tests passing: `uv run pytest`
-- [ ] Documentation updated if needed
-- [ ] GitHub release created with tag
-- [ ] PyPI package published
-- [ ] Homebrew formula updated
-- [ ] Installation tested from all sources
-- [ ] Release notes written
-- [ ] Social media/announcement (optional)
-
-## 🔗 Useful Links
-
-- **PyPI Project**: https://pypi.org/project/datatalk-cli/
-- **GitHub Repository**: https://github.com/vtsaplin/datatalk
-- **GitHub Releases**: https://github.com/vtsaplin/datatalk/releases
-- **PyPI Account**: https://pypi.org/manage/account/
-- **TestPyPI**: https://test.pypi.org/project/datatalk-cli/
-
-## 📚 Additional Resources
-
-- **PyPI Project**: https://pypi.org/project/datatalk-cli/
-- **GitHub Repository**: https://github.com/vtsaplin/datatalk
-- **GitHub Releases**: https://github.com/vtsaplin/datatalk/releases
-- **PyPI Account Management**: https://pypi.org/manage/account/
-- **TestPyPI**: https://test.pypi.org/project/datatalk-cli/
-- **Main Project Documentation**: [README.md](./README.md)
