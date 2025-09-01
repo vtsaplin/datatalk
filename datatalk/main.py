@@ -74,22 +74,28 @@ def get_env_var(name: str, config: dict[str, str], console: Console) -> str:
     description = descriptions.get(name, name)
     console.print(f"[yellow]Missing configuration:[/yellow] {description}")
 
-    if "API_KEY" in name:
-        value = Prompt.ask(f"Enter {description}", console=console, password=True)
-    elif name == "AZURE_DEPLOYMENT_TARGET_URL":
-        value = Prompt.ask(f"Enter {description}", console=console, default=None)
-        console.print(
-            "[dim]Example: https://your-resource.openai.azure.com/openai/"
-            "deployments/gpt-4o/chat/completions?"
-            "api-version=2024-12-01-preview[/dim]"
-        )
-    elif name == "OPENAI_MODEL":
-        value = Prompt.ask(f"Enter {description}", console=console, default="gpt-4o")
-        console.print("[dim]Example: gpt-4o, gpt-3.5-turbo[/dim]")
-    else:
-        # Unknown configuration variable
-        console.print(f"[red]Error:[/red] Unknown configuration: {name}")
-        sys.exit(1)
+    try:
+        if "API_KEY" in name:
+            value = Prompt.ask(f"Enter {description}", console=console, password=True)
+        elif name == "AZURE_DEPLOYMENT_TARGET_URL":
+            value = Prompt.ask(f"Enter {description}", console=console, default=None)
+            console.print(
+                "[dim]Example: https://your-resource.openai.azure.com/openai/"
+                "deployments/gpt-4o/chat/completions?"
+                "api-version=2024-12-01-preview[/dim]"
+            )
+        elif name == "OPENAI_MODEL":
+            value = Prompt.ask(
+                f"Enter {description}", console=console, default="gpt-4o"
+            )
+            console.print("[dim]Example: gpt-4o, gpt-3.5-turbo[/dim]")
+        else:
+            # Unknown configuration variable
+            console.print(f"[red]Error:[/red] Unknown configuration: {name}")
+            sys.exit(1)
+    except (KeyboardInterrupt, EOFError):
+        console.print("\n[dim]Operation cancelled. Goodbye! 👋[/dim]")
+        sys.exit(0)
 
     if not value:
         console.print(f"[red]Error:[/red] {description} is required")
@@ -191,19 +197,25 @@ def detect_provider(config: dict[str, str], console: Console) -> str:
         console.print("[dim]OpenAI configuration detected[/dim]")
         return "openai"
 
-    # If neither is available, ask the user
+        # If neither is available, ask the user
     console.print("[yellow]No AI provider configuration detected.[/yellow]")
     console.print("Available providers:")
-    console.print("  [bold]azure[/bold] - Azure OpenAI (requires API key + target URL)")
-    console.print("  [bold]openai[/bold] - OpenAI (requires API key + model name)")
+    console.print("  [bold]1[/bold] - Azure OpenAI (requires API key + target URL)")
+    console.print("  [bold]2[/bold] - OpenAI (requires API key + model name)")
 
     while True:
-        choice = Prompt.ask(
-            "Choose provider", choices=["azure", "openai"], default="openai"
-        ).lower()
-        if choice in ["azure", "openai"]:
-            return choice
-        console.print("[red]Please choose 'azure' or 'openai'[/red]")
+        try:
+            choice = Prompt.ask(
+                "Choose provider", choices=["1", "2", "azure", "openai"], default="2"
+            ).lower()
+            if choice in ["1", "azure"]:
+                return "azure"
+            elif choice in ["2", "openai"]:
+                return "openai"
+            console.print("[red]Please choose '1' (Azure) or '2' (OpenAI)[/red]")
+        except (KeyboardInterrupt, EOFError):
+            console.print("\n[dim]Operation cancelled. Goodbye! 👋[/dim]")
+            sys.exit(0)
 
 
 def setup_ai_client(
@@ -622,171 +634,172 @@ def process_query(
 def main():
     console = Console()
 
-    # Display logo
-    print_logo(console)
+    try:
+        # Display logo
+        print_logo(console)
 
-    # Parse command line arguments
-    parser = argparse.ArgumentParser(
-        description=("Ask questions about CSV/Parquet data using natural language")
-    )
-    parser.add_argument("file", nargs="?", help="CSV or Parquet file to analyze")
-    parser.add_argument(
-        "-p", "--prompt", help="Run a single query in non-interactive mode"
-    )
-    parser.add_argument(
-        "-c",
-        "--config-info",
-        action="store_true",
-        help="Show configuration file location and exit",
-    )
-    parser.add_argument(
-        "--reset-config",
-        action="store_true",
-        help="Reset (clear) all saved configuration and exit",
-    )
-    parser.add_argument(
-        "-q", "--show-sql", action="store_true", help="Show generated SQL queries"
-    )
-    parser.add_argument(
-        "-d",
-        "--show-data",
-        action="store_true",
-        help="Show detailed dataset information and raw query results",
-    )
-    parser.add_argument(
-        "-s",
-        "--show-schema",
-        action="store_true",
-        help="Show detailed column information table",
-    )
-    parser.add_argument(
-        "--provider",
-        choices=["azure", "openai"],
-        help="AI provider to use (auto-detected if not specified)",
-    )
-
-    args = parser.parse_args()
-
-    # Handle config info request
-    if args.config_info:
-        config_path = get_config_path()
-        console.print(f"Configuration file: [cyan]{config_path}[/cyan]")
-        if config_path.exists():
-            console.print("[green]✓[/green] Configuration file exists")
-            config = load_config()
-            if config:
-                console.print("Stored settings:")
-                for key in config:
-                    if "API_KEY" in key:
-                        console.print(f"  {key}: [dim]***[/dim]")
-                    else:
-                        console.print(f"  {key}: {config[key]}")
-            else:
-                console.print("[yellow]Configuration file is empty[/yellow]")
-        else:
-            console.print("[yellow]Configuration file does not exist[/yellow]")
-        return
-
-    # Handle reset config request
-    if args.reset_config:
-        config_path = get_config_path()
-        if config_path.exists():
-            config_path.unlink()
-            console.print("[green]✓[/green] Configuration file deleted")
-            console.print(f"[dim]Removed: {config_path}[/dim]")
-        else:
-            console.print("[yellow]No configuration file to delete[/yellow]")
-        return
-
-    # Check if file argument is provided when not using config options
-    if not args.file:
-        console.print("[red]Error:[/red] CSV or Parquet file is required")
-        parser.print_help()
-        sys.exit(1)
-
-    # Load .env file if it exists (but don't require it)
-    load_dotenv()
-
-    # Load saved configuration
-    config = load_config()
-
-    # Determine provider (auto-detect if not specified)
-    if args.provider:
-        provider = args.provider
-        console.print(f"[dim]Using specified provider: {provider}[/dim]")
-    else:
-        provider = detect_provider(config, console)
-
-    # Setup AI client based on provider
-    client, model_name = setup_ai_client(provider, config, console)
-
-    path = args.file
-    con = duckdb.connect()
-    load_data_to_duckdb(path, con)
-    schema_info = get_schema(con)
-
-    console.print("[green]Data loaded successfully![/green] ✨")
-    show_basic_stats(con, console, args.show_schema)
-
-    # Non-interactive mode
-    if args.prompt:
-        process_query(
-            client,
-            args.prompt,
-            schema_info,
-            con,
-            args.show_sql,
-            console,
-            model_name,
-            args.show_data,
+        # Parse command line arguments
+        parser = argparse.ArgumentParser(
+            description=("Ask questions about CSV/Parquet data using natural language")
         )
-        return
+        parser.add_argument("file", nargs="?", help="CSV or Parquet file to analyze")
+        parser.add_argument(
+            "-p", "--prompt", help="Run a single query in non-interactive mode"
+        )
+        parser.add_argument(
+            "-c",
+            "--config-info",
+            action="store_true",
+            help="Show configuration file location and exit",
+        )
+        parser.add_argument(
+            "--reset-config",
+            action="store_true",
+            help="Reset (clear) all saved configuration and exit",
+        )
+        parser.add_argument(
+            "-q", "--show-sql", action="store_true", help="Show generated SQL queries"
+        )
+        parser.add_argument(
+            "-d",
+            "--show-data",
+            action="store_true",
+            help="Show detailed dataset information and raw query results",
+        )
+        parser.add_argument(
+            "-s",
+            "--show-schema",
+            action="store_true",
+            help="Show detailed column information table",
+        )
+        parser.add_argument(
+            "--provider",
+            choices=["azure", "openai"],
+            help="AI provider to use (auto-detected if not specified)",
+        )
 
-    # Interactive mode
-    console.print("[dim]Type your questions ([bold]q[/bold] to quit)[/dim]\n")
+        args = parser.parse_args()
 
-    # Generate sample queries once to ensure consistency
-    sample_queries = generate_sample_queries(con, client, model_name, schema_info)
+        # Handle config info request
+        if args.config_info:
+            config_path = get_config_path()
+            console.print(f"Configuration file: [cyan]{config_path}[/cyan]")
+            if config_path.exists():
+                console.print("[green]✓[/green] Configuration file exists")
+                config = load_config()
+                if config:
+                    console.print("[dim]Current configuration:[/dim]")
+                    for key, value in config.items():
+                        if "key" in key.lower() or "password" in key.lower():
+                            # Mask sensitive values
+                            masked = value[:8] + "..." if len(value) > 8 else "***"
+                            console.print(f"  {key}: [dim]{masked}[/dim]")
+                        else:
+                            console.print(f"  {key}: [dim]{value}[/dim]")
+                else:
+                    console.print("[yellow]Configuration file is empty[/yellow]")
+            else:
+                console.print("[yellow]Configuration file does not exist[/yellow]")
+            return
 
-    # Show sample queries to help users get started
-    show_sample_queries(sample_queries, console)
+        # Handle config reset request
+        if args.reset_config:
+            config_path = get_config_path()
+            if config_path.exists():
+                config_path.unlink()
+                console.print("[green]✓[/green] Configuration file deleted")
+                console.print(f"[dim]Removed: {config_path}[/dim]")
+            else:
+                console.print("[yellow]No configuration file to delete[/yellow]")
+            return
 
-    while True:
-        try:
-            # First check if user wants to select from sample queries
-            selected_query = get_user_choice(console, sample_queries)
+        # Check if file argument is provided when not using config options
+        if not args.file:
+            console.print("[red]Error:[/red] CSV or Parquet file is required")
+            parser.print_help()
+            sys.exit(1)
 
-            if selected_query == "quit":
+        # Load .env file if it exists (but don't require it)
+        load_dotenv()
+
+        # Load saved configuration
+        config = load_config()
+
+        # Determine provider (auto-detect if not specified)
+        if args.provider:
+            provider = args.provider
+            console.print(f"[dim]Using specified provider: {provider}[/dim]")
+        else:
+            provider = detect_provider(config, console)
+
+        # Setup AI client based on provider
+        client, model_name = setup_ai_client(provider, config, console)
+
+        path = args.file
+        con = duckdb.connect()
+        load_data_to_duckdb(path, con)
+        schema_info = get_schema(con)
+
+        console.print("[green]Data loaded successfully![/green] ✨")
+        show_basic_stats(con, console, args.show_schema)
+
+        # Non-interactive mode
+        if args.prompt:
+            process_query(
+                client,
+                args.prompt,
+                schema_info,
+                con,
+                args.show_sql,
+                console,
+                model_name,
+                args.show_data,
+            )
+            return
+
+        # Interactive mode
+        console.print("\n[bold green]🤖 AI Assistant Ready![/bold green]")
+        console.print("Ask questions about your data. Type 'quit' or 'exit' to stop.\n")
+
+        # Generate sample queries
+        sample_queries = generate_sample_queries(con, client, model_name, schema_info)
+        if sample_queries:
+            console.print("[bold]💡 Suggested questions to get started:[/bold]")
+            for i, query in enumerate(sample_queries, 1):
+                console.print(f"  {i}. {query}")
+            console.print()
+
+        while True:
+            try:
+                q = Prompt.ask("[bold blue]Ask a question[/bold blue]")
+            except EOFError:
                 console.print("\n[dim]Goodbye! 👋[/dim]")
                 break
-            elif selected_query:
-                # User selected a sample query
-                q = selected_query
-                console.print(f"[dim]Selected: {q}[/dim]\n")
-            else:
-                # User wants to type their own question
-                q = Prompt.ask("[bold blue]>[/bold blue]", console=console)
-        except (EOFError, KeyboardInterrupt):
-            console.print("\n[dim]Goodbye! 👋[/dim]")
-            break
 
-        if q.strip().lower() in ("q", "quit", "exit"):
-            console.print("[dim]Goodbye! 👋[/dim]")
-            break
-        if not q.strip():
-            continue
+            if q.lower() in ["quit", "exit", "q"]:
+                console.print("[dim]Goodbye! 👋[/dim]")
+                break
+            if not q.strip():
+                continue
 
-        process_query(
-            client,
-            q,
-            schema_info,
-            con,
-            args.show_sql,
-            console,
-            model_name,
-            args.show_data,
-        )
-        console.print()  # Add blank line for spacing
+            process_query(
+                client,
+                q,
+                schema_info,
+                con,
+                args.show_sql,
+                console,
+                model_name,
+                args.show_data,
+            )
+            console.print()  # Add blank line for spacing
+
+    except KeyboardInterrupt:
+        console.print("\n[dim]Operation cancelled. Goodbye! 👋[/dim]")
+        sys.exit(0)
+    except Exception as e:
+        console.print(f"\n[red]Error:[/red] {e}")
+        sys.exit(1)
 
 
 if __name__ == "__main__":
