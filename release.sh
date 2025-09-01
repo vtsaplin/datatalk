@@ -1,9 +1,8 @@
 #!/bin/bash
 
 # Simplified release script for Datatalk (GitHub + Homebrew)
-# Usage: ./release.sh [version]
-# Example: ./release.sh        # Auto-increment patch version
-# Example: ./release.sh 0.2.0  # Use specific version
+# Usage: ./release.sh
+# Reads version from pyproject.toml and creates a release
 
 set -e
 
@@ -12,48 +11,33 @@ get_current_version() {
     grep '^version = ' pyproject.toml | sed 's/version = "\(.*\)"/\1/'
 }
 
-# Function to increment patch version
-increment_patch_version() {
-    local version=$1
-    local major=$(echo $version | cut -d. -f1)
-    local minor=$(echo $version | cut -d. -f2)
-    local patch=$(echo $version | cut -d. -f3)
-    echo "$major.$minor.$((patch + 1))"
-}
-
 # Parse arguments
-VERSION=""
-
 for arg in "$@"; do
     case $arg in
         --help|-h)
-            echo "Usage: $0 [version]"
+            echo "Usage: $0"
             echo ""
-            echo "Arguments:"
-            echo "  version    Specific version to release (optional - will auto-increment if not provided)"
-            echo ""
-            echo "Examples:"
-            echo "  $0          # Auto-increment patch version"
-            echo "  $0 0.2.0    # Use specific version"
+            echo "This script reads the version from pyproject.toml and creates a release."
+            echo "Make sure to update the version in pyproject.toml before running this script."
             exit 0
             ;;
         *)
-            # If it's not a flag and VERSION is empty, assume it's a version number
-            if [[ ! $arg =~ ^-- ]] && [ -z "$VERSION" ]; then
-                VERSION=$arg
-            fi
+            echo "ERROR: Unknown argument: $arg"
+            echo "Use --help for usage information"
+            exit 1
             ;;
     esac
 done
 
-# Auto-detect version if not provided
+# Get version from pyproject.toml
+VERSION=$(get_current_version)
+
 if [ -z "$VERSION" ]; then
-    CURRENT_VERSION=$(get_current_version)
-    VERSION=$(increment_patch_version $CURRENT_VERSION)
-    echo "Auto-incrementing version: $CURRENT_VERSION → $VERSION"
-else
-    echo "Using specified version: $VERSION"
+    echo "ERROR: Could not read version from pyproject.toml"
+    exit 1
 fi
+
+echo "Using version from pyproject.toml: $VERSION"
 
 TAG="v$VERSION"
 FORMULA_FILE="homebrew/datatalk-cli.rb"
@@ -61,17 +45,8 @@ FORMULA_FILE="homebrew/datatalk-cli.rb"
 echo "Starting release process for version $VERSION"
 echo ""
 
-# Step 1: Update version in pyproject.toml
-echo "Step 1: Updating version in pyproject.toml..."
-sed -i '' "s/version = \".*\"/version = \"$VERSION\"/" pyproject.toml
-
-# Step 2: Commit version change
-echo "Step 2: Committing version change..."
-git add pyproject.toml
-git commit -m "Bump version to $VERSION"
-
-# Step 3: Create and push tag
-echo "Step 3: Creating and pushing tag $TAG..."
+# Step 1: Create and push tag
+echo "Step 1: Creating and pushing tag $TAG..."
 git tag $TAG
 git push origin main
 git push origin $TAG
@@ -80,8 +55,8 @@ echo ""
 echo "GitHub release completed!"
 echo ""
 
-# Step 4: Update Homebrew formula
-echo "Step 4: Updating Homebrew formula..."
+# Step 2: Update Homebrew formula
+echo "Step 2: Updating Homebrew formula..."
 
 # Check if the formula file exists
 if [ ! -f "$FORMULA_FILE" ]; then
