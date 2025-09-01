@@ -3,6 +3,9 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# Release script backups
+*.backup
+
 # C extensions
 *.so
 
