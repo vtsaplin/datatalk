@@ -3,7 +3,7 @@ name = "datatalk"
 version = "0.1.2"
 description = "Query CSV and Parquet data with natural language"
 readme = "README.md"
-license = {text = "MIT"}
+license = "MIT"
 requires-python = ">=3.9"
 authors = [
     {name = "Vitaly Tsaplin", email = "vitaly@tsaplin.com"},
@@ -31,3 +31,6 @@ datatalk = "datatalk.main:main"
 
 [tool.uv]
 dev-dependencies = []
+
+[tool.setuptools.packages.find]
+include = ["datatalk*"]
