@@ -33,8 +33,6 @@ Whether you're analyzing marketing campaigns, exploring user behavior, or invest
 
 ## Getting Started
 
-## Getting Started
-
 ### Installation
 
 You can install Datatalk directly from GitHub:
