@@ -6,7 +6,7 @@ import pytest
 
 
 class TestEndToEndSmoke:
-    """End-to-end smoke tests for DataTalk app in non-interactive mode."""
+    """End-to-end smoke tests for DataTalk CLI app in non-interactive mode."""
 
     @pytest.fixture
     def test_data_path(self):

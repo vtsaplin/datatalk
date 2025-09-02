@@ -1,7 +1,7 @@
 [project]
-name = "datatalk"
-version = "0.1.15"
-description = "Query CSV and Parquet data with natural language"
+name = "datatalk-cli"
+version = "0.1.16"
+description = "Command-line tool for querying CSV and Parquet data with natural language"
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.9"
@@ -27,7 +27,7 @@ test = [
 ]
 
 [project.scripts]
-datatalk = "datatalk.main:main"
+dtalk = "datatalk.main:main"
 
 [tool.uv]
 dev-dependencies = []

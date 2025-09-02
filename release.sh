@@ -1,5 +1,5 @@
 #!/bin/bash
-# Cross-platform release script for Datatalk
+# Cross-platform release script for DataTalk CLI
 # Works on macOS, Linux, Windows (Git Bash/WSL)
 # Usage: ./release.sh
 
