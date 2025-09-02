@@ -74,37 +74,24 @@ To view your current configuration:
 datatalk --config-info
 ```
 
-## Usage Examples
+## Usage
 
 ### Interactive Mode
 ```bash
-# Analyze sales data interactively
-datatalk sample_data/sales_data.csv
-
-# During development
-uv run datatalk sample_data/sales_data.csv
+# Analyze your data interactively
+datatalk your_data.csv
 ```
 
 ### Direct Query Mode
 ```bash
 # Ask a specific question directly
-datatalk sample_data/employees.csv "Show hiring patterns by year"
+datatalk your_data.csv "Show hiring patterns by year"
 
-# During development  
-uv run datatalk sample_data/employees.csv "Show hiring patterns by year"
-```
-
-### More Examples
-```bash
-# Inventory analysis
-datatalk sample_data/inventory.csv "Which products are running low?"
+# Analyze inventory levels
+datatalk inventory.csv "Which products are running low?"
 
 # Customer insights
-datatalk sample_data/customers.csv "What are the top customer segments?"
-
-# Analyze customer data interactively
-datatalk sample_data/customers.csv
-```
+datatalk customers.csv "What are the top customer segments?"
 ```
 
 ## Development
@@ -118,6 +105,21 @@ cd datatalk
 
 # Run directly
 uv run datatalk --help
+```
+
+### Examples with Sample Data
+
+This repository includes sample CSV files in the `sample_data/` folder for testing:
+
+```bash
+# Interactive mode with sample data
+uv run datatalk sample_data/sales_data.csv
+uv run datatalk sample_data/employees.csv
+
+# Direct queries with sample data
+uv run datatalk sample_data/employees.csv "Show hiring patterns by year"
+uv run datatalk sample_data/inventory.csv "Which products are running low?"
+uv run datatalk sample_data/customers.csv "What are the top customer segments?"
 ```
 
 ### Testing
