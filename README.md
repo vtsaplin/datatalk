@@ -79,19 +79,18 @@ datatalk --config-info
 ### Interactive Mode
 ```bash
 # Analyze your data interactively
-datatalk your_data.csv
+datatalk data.csv
 ```
 
 ### Direct Query Mode
 ```bash
 # Ask a specific question directly
-datatalk your_data.csv "Show hiring patterns by year"
+datatalk data.csv "your question here"
 
-# Analyze inventory levels
-datatalk inventory.csv "Which products are running low?"
-
-# Customer insights
-datatalk customers.csv "What are the top customer segments?"
+# Examples with placeholders
+datatalk data.csv "What are the trends?"
+datatalk data.csv "Show me the top categories"
+datatalk data.csv "Which items need attention?"
 ```
 
 ## Development
