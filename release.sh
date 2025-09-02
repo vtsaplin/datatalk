@@ -21,7 +21,7 @@ else
 fi
 
 # --- Update README install instructions ---
-sed -i '' "s|pip install git+https://github.com/vtsaplin/datatalk.git@v[0-9.]\+|pip install git+https://github.com/vtsaplin/datatalk.git@$TAG|" README.md
+sed -i '' "s|git+https://github.com/vtsaplin/datatalk.git@v[0-9.]\+|git+https://github.com/vtsaplin/datatalk.git@$TAG|" README.md
 
 git add README.md
 git commit -m "Update README for $VERSION" || echo "ℹ️ README already up to date"
