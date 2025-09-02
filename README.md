@@ -51,7 +51,7 @@ uv run datatalk --help
 
 ## Setting Up Your Environment
 
-Datatalk requires Azure OpenAI credentials. You can configure them in two ways:
+Datatalk supports both Azure OpenAI and OpenAI credentials. You can configure them in two ways:
 
 ### Option 1: Interactive Configuration (Recommended)
 
@@ -59,11 +59,20 @@ If no `.env` file is found, the tool will prompt you for the two required values
 
 ### Option 2: Environment File
 
-Create a `.env` file with just these two lines:
+Create a `.env` file with the appropriate credentials:
+
+**For Azure OpenAI:**
 
 ```bash
 AZURE_DEPLOYMENT_TARGET_URL=https://your-resource.openai.azure.com/openai/deployments/gpt-4o/chat/completions?api-version=2024-12-01-preview
 AZURE_OPENAI_API_KEY=your-api-key-here
+```
+
+**For OpenAI:**
+
+```bash
+OPENAI_API_KEY=your-openai-api-key-here
+OPENAI_MODEL=gpt-4o
 ```
 
 **That's it!** The tool automatically extracts the endpoint, deployment name, and API version from the target URL.
@@ -77,12 +86,14 @@ datatalk --config-info
 ## Usage
 
 ### Interactive Mode
+
 ```bash
 # Analyze your data interactively
 datatalk data.csv
 ```
 
 ### Direct Query Mode
+
 ```bash
 # Ask a specific question directly
 datatalk data.csv "your question here"
