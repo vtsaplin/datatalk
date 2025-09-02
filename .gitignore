@@ -172,3 +172,6 @@ cython_debug/
 # Application-specific
 config.json
 .config/
+
+# Scratch folder
+scratch/

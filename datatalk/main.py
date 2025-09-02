@@ -7,7 +7,7 @@ from openai import AzureOpenAI, OpenAI
 from dotenv import load_dotenv
 from rich.console import Console
 from rich.table import Table
-from rich.prompt import Prompt
+from rich.prompt import Prompt, Confirm
 from rich.markdown import Markdown
 from rich import box
 from typing import Union
@@ -446,30 +446,23 @@ def interpret_results(
             results_summary += note
 
     prompt = f"""
-You are a data analyst assistant. A user asked a question about their data and
-received the following results. Please provide a clear, concise summary.
+Analyze this data and provide key insights for: {question}
 
-User's Question: {question}
-Query Results: {results_summary}
+Data: {results_summary}
 
-Provide a 2-3 sentence summary. ALWAYS format numbers and percentages in bold.
+Provide a single paragraph summary with:
+- Key findings with specific numbers in **bold**
+- Notable patterns or trends
+- One actionable insight
 
-Example: "The average bounce rate is **65.5%**" or "There are **1,234**
-total records"
-
-Focus on:
-- Direct answer with bold numbers
-- What the data shows
-- Any notable patterns
-
-Maximum 100 words.
+Be concise and analytical. Maximum 3-4 sentences.
 """
 
     response = client.chat.completions.create(
         model=model_name,
         messages=[{"role": "user", "content": prompt}],
         temperature=0.1,
-        max_tokens=200,
+        max_tokens=150,
     )
 
     # Track token usage
@@ -530,21 +523,36 @@ def process_query(
 
                 console.print(table)
 
+                # Always offer summary option
                 if len(res) > 20:
                     msg = f"[dim]Showing first 20 of {len(res)} rows[/dim]"
                     console.print(msg)
 
-            # Send results to AI for summarization
-            console.print("[dim]Getting summary from AI...[/dim]")
-            try:
-                interpretation = interpret_results(client, query, sql, res, model_name)
-                console.print("\n[bold green]AI Summary:[/bold green]")
-                # Render markdown for better formatting
-                markdown = Markdown(interpretation)
-                console.print(markdown)
-            except Exception as e:
-                msg = "[yellow]Note: Could not generate AI summary " "({e})[/yellow]"
-                console.print(msg.format(e=e))
+                # Ask user if they want a summary (default to no)
+                try:
+                    want_summary = Confirm.ask(
+                        "[yellow]Would you like an AI summary?[/yellow]", default=False
+                    )
+                    if want_summary:
+                        console.print("[dim]Getting summary...[/dim]")
+                        try:
+                            interpretation = interpret_results(
+                                client, query, sql, res, model_name
+                            )
+                            console.print("\n[bold green]AI Summary:[/bold green]")
+                            # Render markdown for better formatting
+                            markdown = Markdown(interpretation)
+                            console.print(markdown)
+                        except Exception as e:
+                            msg = (
+                                "[yellow]Note: Could not generate "
+                                "AI summary ({e})[/yellow]"
+                            )
+                            console.print(msg.format(e=e))
+                except (KeyboardInterrupt, EOFError):
+                    console.print("[dim]Skipping summary.[/dim]")
+
+            # No summary for non-truncated results unless requested
 
     except Exception as e:
         console.print(f"[red]Error:[/red] {e}")
@@ -638,9 +646,15 @@ def main():
 
         # Check if file argument is provided when not using config options
         if not args.file:
-            console.print("[red]Error:[/red] CSV or Parquet file is required")
-            parser.print_help()
-            sys.exit(1)
+            # Show minimal usage information instead of error
+            console.print("\n[bold yellow]Usage:[/bold yellow]")
+            console.print("  datatalk <file.csv|file.parquet> [options]")
+            console.print("\n[bold yellow]Examples:[/bold yellow]")
+            console.print("  datatalk data.csv")
+            console.print("  datatalk data.parquet --show-sql")
+            console.print("  datatalk data.csv -p 'How many rows are there?'")
+            console.print("\n[dim]Use --help for all available options[/dim]")
+            return
 
         # Load .env file if it exists (but don't require it)
         load_dotenv()
