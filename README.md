@@ -33,12 +33,14 @@ Whether you're analyzing marketing campaigns, exploring user behavior, or invest
 
 ## Getting Started
 
-### Homebrew Installation
+## Getting Started
+
+### Installation
+
+You can install Datatalk directly from GitHub:
 
 ```bash
-# Will be available when Homebrew tap is created
-# brew tap vtsaplin/tools
-# brew install datatalk
+pip install git+https://github.com/vtsaplin/datatalk.git@v0.1.5
 ```
 
 ### From Source
@@ -137,10 +139,8 @@ uv run pytest
 
 ### Release
 
-To create a new release:
+To publish a new version:
 
 ```bash
 ./release.sh
 ```
-
-This script reads the version from `pyproject.toml` and creates a GitHub release with an updated Homebrew formula.

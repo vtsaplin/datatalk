@@ -1,6 +1,6 @@
 [project]
 name = "datatalk"
-version = "0.1.4"
+version = "0.1.5"
 description = "Query CSV and Parquet data with natural language"
 readme = "README.md"
 license = "MIT"
@@ -34,3 +34,7 @@ dev-dependencies = []
 
 [tool.setuptools.packages.find]
 include = ["datatalk*"]
+
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
