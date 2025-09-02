@@ -21,8 +21,15 @@ else
     echo "✅ GitHub tag $TAG pushed"
 fi
 
-# --- Update README install instructions (Perl, safe everywhere) ---
-perl -pi -e "s|git\+https://github.com/vtsaplin/datatalk.git@v[0-9]+\.[0-9]+\.[0-9]+|git+https://github.com/vtsaplin/datatalk.git@$TAG|g" README.md
+# --- Update README install instructions ---
+# Use sed to replace the version tag in the git install URL
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    # macOS version (BSD sed)
+    sed -i '' "s/git+https:\/\/github\.com\/vtsaplin\/datatalk\.git@v[0-9]*\.[0-9]*\.[0-9]*/git+https:\/\/github.com\/vtsaplin\/datatalk.git@$TAG/g" README.md
+else
+    # Linux version (GNU sed)
+    sed -i "s/git+https:\/\/github\.com\/vtsaplin\/datatalk\.git@v[0-9]*\.[0-9]*\.[0-9]*/git+https:\/\/github.com\/vtsaplin\/datatalk.git@$TAG/g" README.md
+fi
 
 git add README.md
 git commit -m "Update README for $VERSION" || echo "ℹ️ README already up to date"
