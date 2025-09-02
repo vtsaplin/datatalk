@@ -21,17 +21,8 @@ else
     echo "✅ GitHub tag $TAG pushed"
 fi
 
-# --- Detect sed flavour (GNU vs BSD) ---
-if sed --version >/dev/null 2>&1; then
-    # GNU sed (Linux, WSL, Git Bash)
-    SED_CMD="sed -i"
-else
-    # BSD sed (macOS)
-    SED_CMD="sed -i '' -E"
-fi
-
-# --- Update README install instructions ---
-$SED_CMD "s|git\+https://github.com/vtsaplin/datatalk.git@v[0-9]+\.[0-9]+\.[0-9]+|git+https://github.com/vtsaplin/datatalk.git@$TAG|g" README.md
+# --- Update README install instructions (Perl, safe everywhere) ---
+perl -pi -e "s|git\+https://github.com/vtsaplin/datatalk.git@v[0-9]+\.[0-9]+\.[0-9]+|git+https://github.com/vtsaplin/datatalk.git@$TAG|g" README.md
 
 git add README.md
 git commit -m "Update README for $VERSION" || echo "ℹ️ README already up to date"

@@ -1,6 +1,6 @@
 [project]
 name = "datatalk"
-version = "0.1.12"
+version = "0.1.13"
 description = "Query CSV and Parquet data with natural language"
 readme = "README.md"
 license = "MIT"
