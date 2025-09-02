@@ -8,7 +8,7 @@ class Datatalk < Formula
   license "MIT"
   head "https://github.com/vtsaplin/datatalk.git", branch: "main"
 
-  depends_on "python@3.11"
+  depends_on "python@3.12"
 
   def install
     virtualenv_install_with_resources
