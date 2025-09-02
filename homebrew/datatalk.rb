@@ -3,8 +3,8 @@ class Datatalk < Formula
 
   desc "Query CSV and Parquet data with natural language"
   homepage "https://github.com/vtsaplin/datatalk"
-  url "https://github.com/vtsaplin/datatalk/archive/refs/tags/v0.1.2.tar.gz"
-  sha256 "0855b016588fd9427977a4a0d7821a78c4ca6741204edccfb22df64434a75ff4"
+  url "https://github.com/vtsaplin/datatalk/archive/refs/tags/v0.1.3.tar.gz"
+  sha256 "3772aa66b2d505a7960c9d1c6e32068582298e527c4d6775c5559cff48958de3"
   license "MIT"
   head "https://github.com/vtsaplin/datatalk.git", branch: "main"
 
