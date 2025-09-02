@@ -4,10 +4,10 @@ Require uv
 
 Set Shell "zsh"
 Set Theme "OneHalfLight"
-Set FontSize 18
-Set Width 1000
-Set Height 600
-Set Framerate 60
+Set FontSize 14
+Set Width 800
+Set Height 450
+Set Framerate 15
 
 Env PS1 "user@demo:datatalk$ "
 
@@ -27,7 +27,7 @@ Type "show me total sales by region"
 Sleep 2s
 Enter
 
-Sleep 5s
+Sleep 4s
 
 Type "n"
 Sleep 500ms
@@ -37,7 +37,7 @@ Type "what are the top 3 products by revenue?"
 Sleep 2s
 Enter
 
-Sleep 5s
+Sleep 4s
 
 Type "n"
 Sleep 500ms
@@ -53,7 +53,7 @@ Type "y"
 Sleep 500ms
 Enter
 
-Sleep 5s
+Sleep 4s
 
 Ctrl+C
 Sleep 500ms
