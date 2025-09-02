@@ -6,8 +6,6 @@ A command-line tool for querying CSV and Parquet files using natural language.
 
 DataTalk CLI uses LLMs to interpret natural language queries and converts them to data operations that run locally. This approach keeps your data private while providing accurate, deterministic results.
 
-## Demo
-
 ![Demo](docs/demo.gif)
 
 ## How it works
