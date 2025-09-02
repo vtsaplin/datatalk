@@ -4,7 +4,7 @@ Require uv
 
 Set Shell "zsh"
 Set Theme "OneHalfLight"
-Set FontSize 14
+Set FontSize 12
 Set Width 800
 Set Height 450
 Set Framerate 10
