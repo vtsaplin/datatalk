@@ -50,9 +50,9 @@ wheels = [
 ]
 
 [[package]]
-name = "datatalk"
-version = "0.1.2"
-source = { virtual = "." }
+name = "datatalk-cli"
+version = "0.1.16"
+source = { editable = "." }
 dependencies = [
     { name = "duckdb" },
     { name = "openai" },

@@ -93,13 +93,18 @@ cd datatalk
 uv run dtalk --help
 ```
 
-### Sample data
+### Sample Data
 
-Test with included sample files:
+Test with included sample files in interactive mode:
 
 ```bash
 uv run dtalk sample_data/sales_data.csv
-uv run dtalk sample_data/employees.csv "Show hiring patterns by year"
+```
+
+Run direct queries on sample data:
+
+```bash
+uv run dtalk sample_data/employees.csv -p "Show hiring patterns by year"
 ```
 
 ### Testing
