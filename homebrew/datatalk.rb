@@ -1,4 +1,4 @@
-class DatatalkCli < Formula
+class Datatalk < Formula
   include Language::Python::Virtualenv
 
   desc "Query CSV and Parquet data with natural language"
@@ -15,6 +15,6 @@ class DatatalkCli < Formula
   end
 
   test do
-    system "#{bin}/datatalk-cli", "--help"
+    system "#{bin}/datatalk", "--help"
   end
 end

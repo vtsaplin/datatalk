@@ -40,7 +40,7 @@ fi
 echo "Using version from pyproject.toml: $VERSION"
 
 TAG="v$VERSION"
-FORMULA_FILE="homebrew/datatalk-cli.rb"
+FORMULA_FILE="homebrew/datatalk.rb"
 
 echo "Starting release process for version $VERSION"
 echo ""
@@ -115,7 +115,7 @@ echo "1. Go to GitHub and create a release from tag $TAG if needed"
 echo "2. Test the Homebrew formula:"
 echo "   brew install --build-from-source ./$FORMULA_FILE"
 echo "3. Test the installation:"
-echo "   datatalk-cli --help"
+echo "   datatalk --help"
 echo ""
 echo "Package available at:"
 echo "- GitHub: https://github.com/vtsaplin/datatalk/releases/tag/$TAG"

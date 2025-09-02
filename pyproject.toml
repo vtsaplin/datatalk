@@ -1,5 +1,5 @@
 [project]
-name = "datatalk-cli"
+name = "datatalk"
 version = "0.1.1"
 description = "Query CSV and Parquet data with natural language"
 readme = "README.md"
@@ -27,7 +27,7 @@ test = [
 ]
 
 [project.scripts]
-datatalk-cli = "datatalk.main:main"
+datatalk = "datatalk.main:main"
 
 [tool.uv]
 dev-dependencies = []

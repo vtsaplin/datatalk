@@ -33,22 +33,12 @@ Whether you're analyzing marketing campaigns, exploring user behavior, or invest
 
 ## Getting Started
 
-### PyPI Installation
-
-```bash
-# Using pip
-pip install datatalk-cli
-
-# Using uv  
-uv add datatalk-cli
-```
-
 ### Homebrew Installation
 
 ```bash
 # Will be available when Homebrew tap is created
 # brew tap vtsaplin/tools
-# brew install datatalk-cli
+# brew install datatalk
 ```
 
 ### From Source
@@ -56,7 +46,7 @@ uv add datatalk-cli
 ```bash
 git clone https://github.com/vtsaplin/datatalk.git
 cd datatalk
-uv run datatalk-cli --help
+uv run datatalk --help
 ```
 
 ## Setting Up Your Environment
@@ -81,8 +71,7 @@ AZURE_OPENAI_API_KEY=your-api-key-here
 To view your current configuration:
 
 ```bash
-```bash
-datatalk-cli --config-info
+datatalk --config-info
 ```
 
 ## Usage Examples
@@ -90,56 +79,32 @@ datatalk-cli --config-info
 ### Interactive Mode
 ```bash
 # Analyze sales data interactively
-datatalk-cli sample_data/sales_data.csv
+datatalk sample_data/sales_data.csv
 
 # During development
-uv run datatalk-cli sample_data/sales_data.csv
+uv run datatalk sample_data/sales_data.csv
 ```
 
 ### Direct Query Mode
 ```bash
 # Ask a specific question directly
-datatalk-cli sample_data/employees.csv "Show hiring patterns by year"
+datatalk sample_data/employees.csv "Show hiring patterns by year"
 
 # During development  
-uv run datatalk-cli sample_data/employees.csv "Show hiring patterns by year"
+uv run datatalk sample_data/employees.csv "Show hiring patterns by year"
 ```
 
 ### More Examples
 ```bash
 # Inventory analysis
-datatalk-cli sample_data/inventory.csv "Which products are running low?"
+datatalk sample_data/inventory.csv "Which products are running low?"
 
 # Customer insights
-datatalk-cli sample_data/customers.csv "What are the top customer segments?"
+datatalk sample_data/customers.csv "What are the top customer segments?"
 
 # Analyze customer data interactively
-datatalk-cli sample_data/customers.csv
+datatalk sample_data/customers.csv
 ```
-```
-
-## Usage Examples with Sample Data
-
-This repository includes sample CSV files in the `sample_data/` folder to help you get started quickly:
-
-```bash
-# Analyze sales data interactively
-uv run datatalk sample_data/sales_data.csv
-```
-
-```bash
-# Analyze employee data interactively
-uv run datatalk sample_data/employees.csv
-```
-
-```bash
-# Analyze inventory data interactively
-uv run datatalk sample_data/inventory.csv
-```
-
-```bash
-# Analyze customer data interactively
-uv run datatalk sample_data/customers.csv
 ```
 
 ## Development
@@ -152,7 +117,7 @@ git clone https://github.com/vtsaplin/datatalk.git
 cd datatalk
 
 # Run directly
-uv run datatalk-cli --help
+uv run datatalk --help
 ```
 
 ### Testing
@@ -169,28 +134,12 @@ Run all tests:
 uv run pytest
 ```
 
-### Releasing
+### Release
 
-This project includes automated release scripts for publishing to multiple platforms. See [RELEASE.md](./RELEASE.md) for complete documentation.
+To create a new release:
 
-**Quick release commands:**
 ```bash
-# Complete release to all platforms
-./release_all.sh 0.1.3
-
-# Individual platform releases  
-./release_github.sh 0.1.3    # GitHub only
-./release_pypi.sh 0.1.3      # PyPI only
-./release_homebrew.sh 0.1.3  # Homebrew only
-
-# Test on TestPyPI first
-./release_pypi.sh 0.1.3 --test
+./release.sh
 ```
 
-**Available release scripts:**
-- `release_all.sh` - Master script for complete releases
-- `release_github.sh` - GitHub releases and tags
-- `release_pypi.sh` - PyPI package publishing  
-- `release_homebrew.sh` - Homebrew formula updates
-
-For detailed setup instructions and troubleshooting, see [RELEASE.md](./RELEASE.md) for complete release process documentation.
+This script reads the version from `pyproject.toml` and creates a GitHub release with an updated Homebrew formula.
