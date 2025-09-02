@@ -38,7 +38,7 @@ Whether you're analyzing marketing campaigns, exploring user behavior, or invest
 You can install Datatalk directly from GitHub:
 
 ```bash
-pip install git+https://github.com/vtsaplin/datatalk.git@v0.1.5
+pip install git+https://github.com/vtsaplin/datatalk.git@v0.1.11
 ```
 
 ### From Source
