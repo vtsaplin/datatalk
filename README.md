@@ -26,7 +26,7 @@ DataTalk CLI uses LLMs to interpret natural language queries and converts them t
 Install from GitHub:
 
 ```bash
-pip install git+https://github.com/vtsaplin/datatalk.git@v0.1.15
+pip install git+https://github.com/vtsaplin/datatalk.git@v0.1.16
 ```
 
 Note: The package will be installed as `datatalk-cli` but the command remains `dtalk`.
