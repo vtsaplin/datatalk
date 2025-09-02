@@ -595,6 +595,11 @@ def main():
             action="store_true",
             help="Show token usage statistics",
         )
+        parser.add_argument(
+            "--hide-suggestions",
+            action="store_true",
+            help="Hide question suggestions (useful for demos)",
+        )
 
         args = parser.parse_args()
 
@@ -688,6 +693,9 @@ def main():
         # Function to refresh suggestions
         def refresh_suggestions():
             nonlocal sample_queries
+            if args.hide_suggestions:
+                sample_queries = []
+                return
             sample_queries = generate_sample_queries(
                 con, client, model_name, schema_info, last_query
             )
@@ -706,7 +714,10 @@ def main():
         while True:
             try:
                 # Get user input
-                prompt_text = "[bold blue]Ask a question or choose 1-5[/bold blue]"
+                if args.hide_suggestions or not sample_queries:
+                    prompt_text = "[bold blue]Ask a question[/bold blue]"
+                else:
+                    prompt_text = "[bold blue]Ask a question or choose 1-5[/bold blue]"
                 q = Prompt.ask(prompt_text)
             except EOFError:
                 console.print("\n[dim]Goodbye![/dim]")
@@ -726,7 +737,7 @@ def main():
 
             # Check if user chose a suggestion number
             selected_query = None
-            if q.strip().isdigit():
+            if q.strip().isdigit() and not args.hide_suggestions:
                 choice_num = int(q.strip())
                 if 1 <= choice_num <= len(sample_queries):
                     selected_query = sample_queries[choice_num - 1]
