@@ -11,6 +11,7 @@ from rich.prompt import Prompt, Confirm
 from rich.markdown import Markdown
 from rich import box
 from typing import Union
+from importlib.metadata import version, PackageNotFoundError
 
 from datatalk.config import (
     get_config_path,
@@ -85,7 +86,7 @@ def get_openai_config(config: dict[str, str], console: Console) -> tuple[str, st
     api_key = get_env_var("OPENAI_API_KEY", config, console)
     model = get_env_var("OPENAI_MODEL", config, console)
 
-    console.print("[green]✓[/green] Using OpenAI configuration")
+    console.print("[dim]Using OpenAI[/dim]")
     return api_key, model
 
 
@@ -111,11 +112,9 @@ def detect_provider(config: dict[str, str], console: Console) -> str:
 
     # If only one is available, use that
     if has_azure_env or has_azure_config:
-        console.print("[dim]Azure OpenAI configuration detected[/dim]")
         return "azure"
 
     if has_openai_env or has_openai_config:
-        console.print("[dim]OpenAI configuration detected[/dim]")
         return "openai"
 
         # If neither is available, ask the user
@@ -661,6 +660,13 @@ def main():
 
         # Load saved configuration
         config = load_config()
+
+        # Display version and author
+        try:
+            app_version = version("datatalk-cli")
+        except PackageNotFoundError:
+            app_version = "unknown"
+        console.print(f"[dim]Running DataTalk v{app_version} by Vitaly Tsaplin[/dim]")
 
         # Auto-detect provider
         provider = detect_provider(config, console)
