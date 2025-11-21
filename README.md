@@ -34,7 +34,7 @@ pip install datatalk-cli
 Or install from GitHub (for development/testing):
 
 ```bash
-pip install git+https://github.com/vtsaplin/datatalk.git@v0.1.16
+pip install git+https://github.com/vtsaplin/datatalk.git@v0.1.17
 ```
 
 Note: The package is installed as `datatalk-cli` but the command is `dtalk`.
