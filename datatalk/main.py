@@ -76,8 +76,7 @@ def print_logo(console: Console) -> None:
 ██████╔╝██║  ██║   ██║   ██║  ██║   ██║   ██║  ██║███████╗██║  ██╗
 ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝
 [/bold cyan]
-[dim]Ask questions about your CSV/Parquet data using natural language[/dim]
-"""
+[dim]Ask questions about your CSV or Parquet data in natural language.[/dim]"""
     console.print(logo)
 
 
@@ -85,8 +84,6 @@ def get_openai_config(config: dict[str, str], console: Console) -> tuple[str, st
     """Get OpenAI configuration."""
     api_key = get_env_var("OPENAI_API_KEY", config, console)
     model = get_env_var("OPENAI_MODEL", config, console)
-
-    console.print("[dim]Using OpenAI[/dim]")
     return api_key, model
 
 
@@ -645,8 +642,15 @@ def main():
 
         # Check if file argument is provided when not using config options
         if not args.file:
+            # Show version
+            try:
+                app_version = version("datatalk-cli")
+            except PackageNotFoundError:
+                app_version = "unknown"
+            console.print(f"[dim]DataTalk v{app_version}[/dim]\n")
+            
             # Show minimal usage information instead of error
-            console.print("\n[bold yellow]Usage:[/bold yellow]")
+            console.print("[bold yellow]Usage:[/bold yellow]")
             console.print("  datatalk <file.csv|file.parquet> [options]")
             console.print("\n[bold yellow]Examples:[/bold yellow]")
             console.print("  datatalk data.csv")
@@ -661,25 +665,27 @@ def main():
         # Load saved configuration
         config = load_config()
 
-        # Display version and author
-        try:
-            app_version = version("datatalk-cli")
-        except PackageNotFoundError:
-            app_version = "unknown"
-        console.print(f"[dim]Running DataTalk v{app_version} by Vitaly Tsaplin[/dim]")
-
         # Auto-detect provider
         provider = detect_provider(config, console)
 
         # Setup AI client based on provider
         client, model_name = setup_ai_client(provider, config, console)
 
+        # Display version and provider
+        try:
+            app_version = version("datatalk-cli")
+        except PackageNotFoundError:
+            app_version = "unknown"
+        
+        provider_name = "Azure OpenAI" if provider == "azure" else "OpenAI"
+        console.print(f"[dim]DataTalk v{app_version} — powered by {provider_name}[/dim]\n\n")
+
         path = args.file
         con = duckdb.connect()
         load_data_to_duckdb(path, con)
         schema_info = get_schema(con)
 
-        console.print("[green]Data loaded successfully![/green]")
+        console.print("[green]Data loaded successfully.[/green]")
         show_basic_stats(con, console, not args.hide_schema)
 
         # Non-interactive mode

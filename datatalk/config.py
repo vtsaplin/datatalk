@@ -130,7 +130,6 @@ def get_azure_config(
 
     try:
         endpoint, deployment_name, api_version = parse_target_url(target_url)
-        console.print("[dim]Using Azure OpenAI[/dim]")
         return api_key, endpoint, deployment_name, api_version
     except ValueError as e:
         console.print(f"[red]Error parsing Azure target URL:[/red] {e}")
