@@ -71,20 +71,6 @@ That's it! The command-line tool `dtalk` will be available immediately.
 - Python 3.9 or higher
 - An OpenAI or Azure OpenAI API key
 
-**Alternative Installation Methods:**
-
-From GitHub (latest development version):
-```bash
-pip install git+https://github.com/vtsaplin/datatalk.git@main
-```
-
-For local development:
-```bash
-git clone https://github.com/vtsaplin/datatalk.git
-cd datatalk
-uv run dtalk --help
-```
-
 ## Quick Start
 
 Get up and running in 60 seconds:
