@@ -1,6 +1,6 @@
 [project]
 name = "datatalk-cli"
-version = "0.1.17"
+version = "0.1.18"
 description = "Command-line tool for querying CSV and Parquet data with natural language"
 readme = "README.md"
 license = "MIT"
