@@ -563,7 +563,7 @@ def main():
 
         # Parse command line arguments
         parser = argparse.ArgumentParser(
-            description=("Ask questions about CSV/Parquet data using natural language")
+            description=("Ask questions about your CSV or Parquet data in natural language.")
         )
         parser.add_argument("file", nargs="?", help="CSV or Parquet file to analyze")
         parser.add_argument(
