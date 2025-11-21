@@ -5,6 +5,14 @@
 
 set -e
 
+# --- Ensure we're on main branch ---
+CURRENT_BRANCH=$(git branch --show-current)
+if [ "$CURRENT_BRANCH" != "main" ]; then
+    echo "❌ Error: Must be on main branch to release"
+    echo "   Current branch: $CURRENT_BRANCH"
+    exit 1
+fi
+
 # --- Get version from pyproject.toml ---
 VERSION=$(grep '^version = ' pyproject.toml | sed 's/version = "\(.*\)"/\1/')
 TAG="v$VERSION"
