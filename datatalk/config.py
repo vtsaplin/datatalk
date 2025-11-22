@@ -52,6 +52,10 @@ def get_env_var(name: str, config: Dict[str, str], console: Console) -> str:
         "OPENAI_MODEL": "OpenAI model name",
         "ANTHROPIC_API_KEY": "Anthropic API key",
         "ANTHROPIC_MODEL": "Anthropic model name",
+        "OLLAMA_BASE_URL": "Ollama server endpoint",
+        "OLLAMA_MODEL": "Ollama model name",
+        "GEMINI_API_KEY": "Google AI Studio API key",
+        "GEMINI_MODEL": "Gemini model name",
     }
 
     description = descriptions.get(name, name)
@@ -77,6 +81,21 @@ def get_env_var(name: str, config: Dict[str, str], console: Console) -> str:
                 f"Enter {description}", console=console, default="claude-3-5-sonnet-20241022"
             )
             console.print("[dim]Example: claude-3-5-sonnet-20241022, claude-3-opus-20240229[/dim]")
+        elif name == "OLLAMA_BASE_URL":
+            value = Prompt.ask(
+                f"Enter {description}", console=console, default="http://localhost:11434/v1"
+            )
+            console.print("[dim]Example: http://localhost:11434/v1[/dim]")
+        elif name == "OLLAMA_MODEL":
+            value = Prompt.ask(
+                f"Enter {description}", console=console, default="llama3.1"
+            )
+            console.print("[dim]Example: llama3.1, mistral, codellama[/dim]")
+        elif name == "GEMINI_MODEL":
+            value = Prompt.ask(
+                f"Enter {description}", console=console, default="gemini-1.5-flash"
+            )
+            console.print("[dim]Example: gemini-1.5-flash, gemini-1.5-pro[/dim]")
         else:
             # Unknown configuration variable
             console.print(f"[red]Error:[/red] Unknown configuration: {name}")
@@ -147,4 +166,18 @@ def get_anthropic_config(config: Dict[str, str], console: Console) -> tuple[str,
     """Get Anthropic configuration."""
     api_key = get_env_var("ANTHROPIC_API_KEY", config, console)
     model = get_env_var("ANTHROPIC_MODEL", config, console)
+    return api_key, model
+
+
+def get_ollama_config(config: Dict[str, str], console: Console) -> tuple[str, str]:
+    """Get Ollama configuration."""
+    base_url = get_env_var("OLLAMA_BASE_URL", config, console)
+    model = get_env_var("OLLAMA_MODEL", config, console)
+    return base_url, model
+
+
+def get_gemini_config(config: Dict[str, str], console: Console) -> tuple[str, str]:
+    """Get Gemini configuration."""
+    api_key = get_env_var("GEMINI_API_KEY", config, console)
+    model = get_env_var("GEMINI_MODEL", config, console)
     return api_key, model

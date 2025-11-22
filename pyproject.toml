@@ -29,6 +29,9 @@ test = [
 anthropic = [
     "anthropic>=0.40.0",
 ]
+gemini = [
+    "google-generativeai>=0.3.0",
+]
 
 [project.scripts]
 dtalk = "datatalk.main:main"
