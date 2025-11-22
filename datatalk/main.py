@@ -364,9 +364,6 @@ examples:
   dtalk data.parquet --show-sql
   dtalk data.csv -p 'How many rows are there?'
   dtalk sales.xlsx -p 'What are the top 5 products?' --show-sql
-
-
-
 """
         parser = argparse.ArgumentParser(
             description="",
