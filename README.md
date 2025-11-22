@@ -4,20 +4,35 @@
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-**Ask questions to your CSV, Excel & Parquet files in plain English right from your terminal.**
+**Chat with your data files in plain English. Right from your terminal.**
 
-Stop writing SQL or memorizing command flags for quick data checks. Just ask your question naturally and get instant answers while keeping your data completely local and private.
+No SQL. No command flags. Just ask "What are the top 5 products?" and get instant answers. All processing happens locally, your data never leaves your machine.
 
 ![Demo](docs/demo.gif)
 
 ## Why DataTalk?
 
-Working with data files in the terminal usually means choosing between:
-- **GUI tools** (Excel) - slow for large files, breaks your workflow
-- **CLI tools** (qsv, csvkit) - powerful but require memorizing many commands
-- **SQL tools** (DuckDB) - need formal query syntax for simple questions
+**The Problem:** You have a CSV file and a simple question. What do you do?
+- Open Excel? Slow for large files, and you have to leave the terminal
+- Use command-line tools (awk, csvkit)? Need to remember complex flags and syntax
+- Write SQL? Overkill for "show me the top 5 products"
 
-DataTalk gives you the best of both: natural language questions + local processing + terminal speed.
+**The Solution:** Just ask your question naturally.
+
+```bash
+dtalk sales.csv
+> What are the top 5 products by revenue?
+> Show me sales by region for Q4
+> Which customers made orders over $1000?
+```
+
+**The Best of All Worlds:**
+- 🗣️ **Natural language** - no SQL or command flags to memorize
+- 💬 **Interactive** - ask follow-up questions conversationally
+- ⚡ **Fast** - DuckDB processes gigabytes locally in seconds
+- 🔒 **Private** - your data never leaves your machine
+- 🤖 **Scriptable** - JSON/CSV output for automation
+- 🌐 **Flexible** - use any LLM provider or fully local models (Ollama)
 
 ## Features
 
