@@ -132,7 +132,7 @@ def detect_provider(config: dict[str, str], console: Console) -> str:
                 return "openai"
             console.print("[red]Please choose '1' (Azure) or '2' (OpenAI)[/red]")
         except (KeyboardInterrupt, EOFError):
-            console.print("\n[dim]Operation cancelled. Goodbye![/dim]")
+            console.print("\n[dim]Goodbye![/dim]\n")
             sys.exit(0)
 
 
@@ -494,22 +494,22 @@ examples:
         # Interactive mode
         console.print(
             "Ask questions about your data. "
-            "Type 'quit', 'exit', or 'stop' to quit.\n"
+            "Type 'quit', 'exit', 'stop', or press Ctrl+C to exit.\n"
         )
 
         while True:
             try:
                 # Get user input
-                q = Prompt.ask("[bold blue]Ask a question[/bold blue] [dim](Ctrl+C to exit)[/dim]")
+                q = Prompt.ask("[bold blue]Question[/bold blue]")
             except EOFError:
-                console.print("\n[dim]Goodbye![/dim]")
+                console.print("\n[dim]Goodbye![/dim]\n")
                 # Show token usage statistics before exiting
                 if args.show_tokens:
                     token_tracker.print_statistics(console)
                 break
 
             if q.lower() in ["quit", "exit", "q", "stop", "bye", "goodbye"]:
-                console.print("[dim]Goodbye![/dim]")
+                console.print("[dim]Goodbye![/dim]\n")
                 # Show token usage statistics before exiting
                 if args.show_tokens:
                     token_tracker.print_statistics(console)
@@ -529,7 +529,7 @@ examples:
             )
 
     except KeyboardInterrupt:
-        console.print("\n[dim]Operation cancelled. Goodbye![/dim]")
+        console.print("\n[dim]Goodbye![/dim]\n")
         # Show token usage statistics before exiting
         if "args" in locals() and hasattr(args, "show_tokens") and args.show_tokens:
             token_tracker.print_statistics(console)
