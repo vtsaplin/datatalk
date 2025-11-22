@@ -26,19 +26,13 @@ dtalk sales.csv
 > Which customers made orders over $1000?
 ```
 
-**The Best of All Worlds:**
-- **Natural language** - no SQL or command flags to memorize
-- **Interactive** - ask follow-up questions conversationally
-- **Fast** - DuckDB processes gigabytes locally in seconds
-- **Private** - your data never leaves your machine
-- **Scriptable** - JSON/CSV output for automation
-- **Flexible** - use any LLM provider or fully local models (Ollama)
-
 ## Features
 
-- **100% Local Processing** - Data never leaves your machine, only schema is sent to LLM
-- **100+ LLM Models** - Powered by [LiteLLM](https://docs.litellm.ai) - OpenAI, Anthropic, Google, Ollama (local), and more
 - **Natural Language** - Ask questions in plain English, no SQL required
+- **Interactive Mode** - Ask follow-up questions conversationally
+- **100% Local Processing** - Data never leaves your machine, only schema is sent to LLM
+- **Fast** - DuckDB processes gigabytes locally in seconds
+- **100+ LLM Models** - Powered by [LiteLLM](https://docs.litellm.ai) - OpenAI, Anthropic, Google, Ollama (local), and more
 - **Multiple File Formats** - Supports CSV, Excel (.xlsx, .xls), and Parquet files
 - **Scriptable** - JSON and CSV output formats for automation and pipelines
 - **Simple Configuration** - Just set `LLM_MODEL` and API key environment variables
