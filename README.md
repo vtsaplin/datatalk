@@ -4,9 +4,9 @@
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-**Chat with your data files in plain English. Right from your terminal.**
-
-No SQL. No command flags. Just ask "What are the top 5 products?" and get instant answers. All processing happens locally, your data never leaves your machine.
+> **Chat with your data files in plain English. Right from your terminal.**
+>
+> No SQL. No command flags. Just ask "What are the top 5 products?" and get instant answers. All processing happens locally, your data never leaves your machine.
 
 ![Demo](docs/demo.gif)
 
@@ -27,12 +27,12 @@ dtalk sales.csv
 ```
 
 **The Best of All Worlds:**
-- 🗣️ **Natural language** - no SQL or command flags to memorize
-- 💬 **Interactive** - ask follow-up questions conversationally
-- ⚡ **Fast** - DuckDB processes gigabytes locally in seconds
-- 🔒 **Private** - your data never leaves your machine
-- 🤖 **Scriptable** - JSON/CSV output for automation
-- 🌐 **Flexible** - use any LLM provider or fully local models (Ollama)
+- **Natural language** - no SQL or command flags to memorize
+- **Interactive** - ask follow-up questions conversationally
+- **Fast** - DuckDB processes gigabytes locally in seconds
+- **Private** - your data never leaves your machine
+- **Scriptable** - JSON/CSV output for automation
+- **Flexible** - use any LLM provider or fully local models (Ollama)
 
 ## Features
 
