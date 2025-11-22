@@ -50,6 +50,8 @@ def get_env_var(name: str, config: Dict[str, str], console: Console) -> str:
         "AZURE_DEPLOYMENT_TARGET_URL": "Azure OpenAI deployment target URL",
         "OPENAI_API_KEY": "OpenAI API key",
         "OPENAI_MODEL": "OpenAI model name",
+        "ANTHROPIC_API_KEY": "Anthropic API key",
+        "ANTHROPIC_MODEL": "Anthropic model name",
     }
 
     description = descriptions.get(name, name)
@@ -70,6 +72,11 @@ def get_env_var(name: str, config: Dict[str, str], console: Console) -> str:
                 f"Enter {description}", console=console, default="gpt-4o"
             )
             console.print("[dim]Example: gpt-4o, gpt-3.5-turbo[/dim]")
+        elif name == "ANTHROPIC_MODEL":
+            value = Prompt.ask(
+                f"Enter {description}", console=console, default="claude-3-5-sonnet-20241022"
+            )
+            console.print("[dim]Example: claude-3-5-sonnet-20241022, claude-3-opus-20240229[/dim]")
         else:
             # Unknown configuration variable
             console.print(f"[red]Error:[/red] Unknown configuration: {name}")
@@ -134,3 +141,10 @@ def get_azure_config(
     except ValueError as e:
         console.print(f"[red]Error parsing Azure target URL:[/red] {e}")
         sys.exit(1)
+
+
+def get_anthropic_config(config: Dict[str, str], console: Console) -> tuple[str, str]:
+    """Get Anthropic configuration."""
+    api_key = get_env_var("ANTHROPIC_API_KEY", config, console)
+    model = get_env_var("ANTHROPIC_MODEL", config, console)
+    return api_key, model

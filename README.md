@@ -24,6 +24,7 @@ DataTalk gives you the best of both: natural language questions + local processi
 - **100% Local Processing** - Data never leaves your machine, only schema is sent to LLM
 - **Natural Language** - Ask questions in plain English, no SQL required
 - **Multiple Formats** - Supports CSV, Excel (.xlsx, .xls), and Parquet files
+- **Extensible** - Pluggable LLM provider architecture
 - **Transparent** - Use `--show-sql` to see generated queries
 
 ## Installation
@@ -32,7 +33,7 @@ DataTalk gives you the best of both: natural language questions + local processi
 pip install datatalk-cli
 ```
 
-**Requirements:** Python 3.9+ and OpenAI or Azure OpenAI API key
+**Requirements:** Python 3.9+ and API key for a supported LLM provider
 
 ## Quick Start
 
@@ -46,6 +47,8 @@ dtalk sales_data.csv "What are the top 5 products by revenue?"
 
 ## Configuration
 
+DataTalk supports multiple LLM providers. Choose the one that works best for you:
+
 ### OpenAI
 ```bash
 export OPENAI_API_KEY="your-api-key"
@@ -57,6 +60,14 @@ export OPENAI_MODEL="gpt-4o"  # Optional
 export AZURE_DEPLOYMENT_TARGET_URL="https://your-resource.openai.azure.com/..."
 export AZURE_OPENAI_API_KEY="your-api-key"
 ```
+
+### Anthropic Claude
+```bash
+export ANTHROPIC_API_KEY="your-api-key"
+export ANTHROPIC_MODEL="claude-3-5-sonnet-20241022"  # Optional
+```
+
+*More providers can be added through the extensible provider architecture.*
 
 Or create a `.env` file, or run `dtalk` and follow the interactive setup.
 
@@ -106,7 +117,6 @@ dtalk data.parquet "Count distinct users"
 
 ```bash
 dtalk data.csv "query" --show-sql       # Show generated SQL
-dtalk data.csv "query" --show-tokens    # Show API token usage
 dtalk data.csv --hide-schema            # Hide dataset schema
 dtalk data.csv "query" --hide-data      # Hide query results
 ```
@@ -142,11 +152,8 @@ python -m build
 
 ## FAQ
 
-**Q: Is my data sent to OpenAI/Azure?**  
+**Q: Is my data sent to the LLM provider?**  
 A: No. Only schema (column names and types) is sent. Your data stays local.
-
-**Q: How much does it cost?**  
-A: 200-500 tokens per query ($0.001-0.005 with GPT-4). Use `--show-tokens` to monitor.
 
 **Q: What file formats are supported?**  
 A: CSV, Excel (.xlsx, .xls), and Parquet files.

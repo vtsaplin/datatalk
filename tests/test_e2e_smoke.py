@@ -167,38 +167,6 @@ class TestEndToEndSmoke:
         assert result.returncode == 0
         assert "Configuration file:" in result.stdout
 
-    def test_app_token_usage_flag_works(self, test_data_path, mock_env_vars):
-        """Test that the --show-tokens flag displays token usage statistics."""
-        cmd = [
-            sys.executable,
-            "-m",
-            "datatalk.main",
-            str(test_data_path),
-            "--prompt",
-            "Count the products",
-            "--show-tokens",
-            "--hide-data",
-        ]
-
-        result = subprocess.run(
-            cmd,
-            cwd=Path(__file__).parent.parent,
-            capture_output=True,
-            text=True,
-            timeout=30,
-        )
-
-        # Should complete without crashing even if API fails
-        assert result.returncode in [
-            0,
-            1,
-        ], f"Command failed unexpectedly with stderr: {result.stderr}"
-
-        # Should show token statistics or no API calls message
-        expected_tokens = "Token Usage Statistics"
-        expected_no_calls = "No API calls were made"
-        assert expected_tokens in result.stdout or expected_no_calls in result.stdout
-
     def test_app_reset_config_flag_works_safely(self, tmp_path):
         """Test --reset-config flag works without affecting user config."""
         # Create a temporary config directory structure
