@@ -76,7 +76,8 @@ def print_logo(console: Console) -> None:
 ██████╔╝██║  ██║   ██║   ██║  ██║   ██║   ██║  ██║███████╗██║  ██╗
 ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝
 [/bold cyan]
-[dim]Ask questions about your CSV or Parquet data in natural language.[/dim]"""
+[dim]Ask questions about your CSV or Parquet data in natural language.[/dim]
+"""
     console.print(logo)
 
 
@@ -562,8 +563,21 @@ def main():
         print_logo(console)
 
         # Parse command line arguments
+        epilog_text = """
+examples:
+  dtalk data.csv
+  dtalk data.parquet --show-sql
+  dtalk data.csv -p 'How many rows are there?'
+  dtalk sales.csv -p 'What are the top 5 products?' --show-sql
+
+
+
+"""
         parser = argparse.ArgumentParser(
-            description=("Ask questions about your CSV or Parquet data in natural language.")
+            description="",
+            epilog=epilog_text,
+            add_help=True,
+            formatter_class=argparse.RawDescriptionHelpFormatter
         )
         parser.add_argument("file", nargs="?", help="CSV or Parquet file to analyze")
         parser.add_argument(
@@ -640,23 +654,9 @@ def main():
                 console.print("[yellow]No configuration file to delete[/yellow]")
             return
 
-        # Check if file argument is provided when not using config options
         if not args.file:
-            # Show version
-            try:
-                app_version = version("datatalk-cli")
-            except PackageNotFoundError:
-                app_version = "unknown"
-            console.print(f"[dim]DataTalk v{app_version}[/dim]\n")
-            
-            # Show minimal usage information instead of error
-            console.print("[bold yellow]Usage:[/bold yellow]")
-            console.print("  datatalk <file.csv|file.parquet> [options]")
-            console.print("\n[bold yellow]Examples:[/bold yellow]")
-            console.print("  datatalk data.csv")
-            console.print("  datatalk data.parquet --show-sql")
-            console.print("  datatalk data.csv -p 'How many rows are there?'")
-            console.print("\n[dim]Use --help for all available options[/dim]")
+            parser.print_help()
+            console.print()
             return
 
         # Load .env file if it exists (but don't require it)
@@ -678,14 +678,15 @@ def main():
             app_version = "unknown"
         
         provider_name = "Azure OpenAI" if provider == "azure" else "OpenAI"
-        console.print(f"[dim]DataTalk v{app_version} — powered by {provider_name}[/dim]\n\n")
+        version_text = f"DataTalk v{app_version} — powered by {provider_name}"
+        console.print(version_text, highlight=False)
 
         path = args.file
         con = duckdb.connect()
         load_data_to_duckdb(path, con)
         schema_info = get_schema(con)
 
-        console.print("[green]Data loaded successfully.[/green]")
+        console.print("\n[green]Data loaded successfully.[/green]")
         show_basic_stats(con, console, not args.hide_schema)
 
         # Non-interactive mode

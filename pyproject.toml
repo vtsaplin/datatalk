@@ -1,7 +1,7 @@
 [project]
 name = "datatalk-cli"
 version = "0.1.20"
-description = "Command-line tool for querying CSV and Parquet data with natural language"
+description = "Ask questions about your CSV or Parquet data in natural language."
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.9"
