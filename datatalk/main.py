@@ -500,7 +500,7 @@ examples:
         while True:
             try:
                 # Get user input
-                q = Prompt.ask("[bold blue]Ask a question[/bold blue]")
+                q = Prompt.ask("[bold blue]Ask a question[/bold blue] [dim](Ctrl+C to exit)[/dim]")
             except EOFError:
                 console.print("\n[dim]Goodbye![/dim]")
                 # Show token usage statistics before exiting
