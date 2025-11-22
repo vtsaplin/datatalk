@@ -22,6 +22,7 @@ DataTalk gives you the best of both: natural language questions + local processi
 ## Features
 
 - **100% Local Processing** - Data never leaves your machine, only schema is sent to LLM
+- **Multiple LLM Providers** - OpenAI, Azure, Anthropic, Ollama (local), Google Gemini
 - **Natural Language** - Ask questions in plain English, no SQL required
 - **Multiple Formats** - Supports CSV, Excel (.xlsx, .xls), and Parquet files
 - **Extensible** - Pluggable LLM provider architecture
@@ -33,15 +34,17 @@ DataTalk gives you the best of both: natural language questions + local processi
 pip install datatalk-cli
 ```
 
-**Requirements:** Python 3.9+ and API key for a supported LLM provider
+**Requirements:** Python 3.9+ and API key for a supported LLM provider (or local Ollama)
 
 ## Quick Start
 
 ```bash
-# Set your API key
+# Option 1: Using OpenAI
 export OPENAI_API_KEY="your-key-here"
+dtalk sales_data.csv "What are the top 5 products by revenue?"
 
-# Query a file
+# Option 2: Using local Ollama (fully private)
+export OLLAMA_MODEL="llama3.1"
 dtalk sales_data.csv "What are the top 5 products by revenue?"
 ```
 
@@ -52,7 +55,7 @@ DataTalk supports multiple LLM providers. Choose the one that works best for you
 ### OpenAI
 ```bash
 export OPENAI_API_KEY="your-api-key"
-export OPENAI_MODEL="gpt-4o"  # Optional
+export OPENAI_MODEL="gpt-4o"  # Optional, defaults to gpt-4o
 ```
 
 ### Azure OpenAI
@@ -65,6 +68,23 @@ export AZURE_OPENAI_API_KEY="your-api-key"
 ```bash
 export ANTHROPIC_API_KEY="your-api-key"
 export ANTHROPIC_MODEL="claude-3-5-sonnet-20241022"  # Optional
+```
+
+### Ollama (Local Models)
+```bash
+# Install Ollama: https://ollama.ai
+# Start Ollama and pull a model: ollama pull llama3.1
+
+export OLLAMA_BASE_URL="http://localhost:11434/v1"  # Optional, default
+export OLLAMA_MODEL="llama3.1"  # Or mistral, codellama, etc.
+```
+
+### Google Gemini
+```bash
+# Install optional dependency: pip install datatalk-cli[gemini]
+
+export GEMINI_API_KEY="your-api-key"  # Get from https://ai.google.dev
+export GEMINI_MODEL="gemini-1.5-flash"  # Optional, or gemini-1.5-pro
 ```
 
 *More providers can be added through the extensible provider architecture.*
@@ -175,4 +195,4 @@ Contributions welcome! Please:
 
 MIT License - see [LICENSE](LICENSE) file.
 
-Built with [DuckDB](https://duckdb.org/), [OpenAI API](https://openai.com/), and [Rich](https://rich.readthedocs.io/).
+Built with [DuckDB](https://duckdb.org/), [Rich](https://rich.readthedocs.io/), and multiple LLM providers.
