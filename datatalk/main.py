@@ -76,7 +76,7 @@ def print_logo(console: Console) -> None:
 ██████╔╝██║  ██║   ██║   ██║  ██║   ██║   ██║  ██║███████╗██║  ██╗
 ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝
 [/bold cyan]
-[dim]Ask questions about your CSV or Parquet data in natural language.[/dim]
+[dim]Ask questions about your CSV, Excel or Parquet data in natural language.[/dim]
 """
     console.print(logo)
 
@@ -160,7 +160,7 @@ def setup_ai_client(
 
 
 def load_data_to_duckdb(path: str, con: duckdb.DuckDBPyConnection):
-    """Load CSV or Parquet file into DuckDB and create a table named 'events'."""
+    """Load CSV, Parquet, or Excel file into DuckDB and create a table named 'events'."""
     file_path = Path(path)
     file_extension = file_path.suffix.lower()
 
@@ -173,10 +173,14 @@ def load_data_to_duckdb(path: str, con: duckdb.DuckDBPyConnection):
             f"CREATE TABLE events AS SELECT * FROM "
             f"read_csv_auto('{path}', HEADER=TRUE);"
         )
+    elif file_extension in [".xlsx", ".xls"]:
+        import pandas as pd
+        df = pd.read_excel(path)
+        con.execute("CREATE TABLE events AS SELECT * FROM df")
     else:
         raise ValueError(
             f"Unsupported file format: {file_extension}. "
-            f"Supported formats: .csv, .parquet"
+            f"Supported formats: .csv, .parquet, .xlsx, .xls"
         )
 
 
@@ -356,9 +360,10 @@ def main():
         epilog_text = """
 examples:
   dtalk data.csv
+  dtalk report.xlsx
   dtalk data.parquet --show-sql
   dtalk data.csv -p 'How many rows are there?'
-  dtalk sales.csv -p 'What are the top 5 products?' --show-sql
+  dtalk sales.xlsx -p 'What are the top 5 products?' --show-sql
 
 
 
@@ -369,7 +374,7 @@ examples:
             add_help=True,
             formatter_class=argparse.RawDescriptionHelpFormatter
         )
-        parser.add_argument("file", nargs="?", help="CSV or Parquet file to analyze")
+        parser.add_argument("file", nargs="?", help="CSV, Excel, or Parquet file to analyze")
         parser.add_argument(
             "-p", "--prompt", help="Run a single query in non-interactive mode"
         )
