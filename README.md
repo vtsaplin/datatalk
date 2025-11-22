@@ -57,7 +57,6 @@ This approach gives you the convenience of natural language while maintaining fu
 - **Multiple Formats** - Seamless support for CSV and Parquet files
 - **No Coding Required** - Query data without pandas or SQL knowledge
 - **Transparent** - Optional `--show-sql` flag to see generated queries
-- **Smart Suggestions** - Context-aware follow-up questions
 
 ## Installation
 
@@ -272,9 +271,6 @@ dtalk data.csv --hide-schema
 
 # Hide raw query results (useful when scripting)
 dtalk data.csv "query" --hide-data
-
-# Hide AI-generated question suggestions
-dtalk data.csv --hide-suggestions
 ```
 
 ### Scripting & Automation

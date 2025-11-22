@@ -289,189 +289,6 @@ User question: {question}
     return sql
 
 
-def generate_sample_queries(
-    con: duckdb.DuckDBPyConnection,
-    client: Union[AzureOpenAI, OpenAI],
-    model_name: str,
-    schema_info: str,
-    last_query: str | None = None,
-) -> list[str]:
-    """Generate sample queries using AI analysis of the actual data."""
-    try:
-        # Get basic data info for LLM analysis
-        result = con.execute("SELECT COUNT(*) FROM events").fetchone()
-        row_count = result[0] if result else 0
-        columns = con.execute("PRAGMA table_info('events')").fetchall()
-
-        # Get sample data to help LLM understand the content
-        sample_data = con.execute("SELECT * FROM events LIMIT 5").fetchall()
-        column_names = [col[1] for col in columns]
-
-        # Format sample data for LLM
-        sample_rows = []
-        for row in sample_data:
-            row_dict = {}
-            for i, value in enumerate(row):
-                if i < len(column_names):
-                    # Truncate long values
-                    str_value = str(value)
-                    if len(str_value) > 50:
-                        str_value = str_value[:50] + "..."
-                    row_dict[column_names[i]] = str_value
-            sample_rows.append(row_dict)
-
-        # Create prompt for LLM, adapting based on whether there's a last query
-        if last_query:
-            prompt = f"""
-You are a data analyst. A user just asked: "{last_query}"
-
-Based on this previous question and the dataset below, suggest 5 follow-up questions
-that would naturally complement or build upon their previous query.
-
-Dataset Info:
-- Schema: {schema_info}
-- Total rows: {row_count:,}
-- Sample data (first 5 rows): {sample_rows}
-
-Requirements:
-1. Generate questions that logically follow from their previous question
-2. Focus on deeper insights or related analysis
-3. Questions should be in natural language
-4. Return ONLY the questions, one per line
-5. No numbering or bullet points
-
-Example format:
-What is the total number of pageviews?
-Which device type has the highest bounce rate?
-"""
-        else:
-            prompt = f"""
-You are a data analyst. Given this dataset information, suggest 5 interesting
-and practical starter questions that a user might want to ask about this data.
-
-Dataset Info:
-- Schema: {schema_info}
-- Total rows: {row_count:,}
-- Sample data (first 5 rows): {sample_rows}
-
-Requirements:
-1. Generate questions that are specific to this data
-2. Focus on actionable insights and patterns
-3. Mix simple and analytical questions
-4. Questions should be in natural language
-5. Return ONLY the questions, one per line
-6. No numbering or bullet points
-
-Example format:
-What is the total number of pageviews?
-Which device type has the highest bounce rate?
-"""
-
-        response = client.chat.completions.create(
-            model=model_name,
-            messages=[{"role": "user", "content": prompt}],
-            temperature=0.3,
-            max_tokens=300,
-        )
-
-        # Track token usage
-        token_tracker.add_usage(response.usage)
-
-        content = response.choices[0].message.content
-        if content is None:
-            raise ValueError("No content returned from AI")
-
-        # Parse the response into individual queries
-        queries = [q.strip() for q in content.strip().split("\n") if q.strip()]
-
-        # Filter out any numbered or bulleted items
-        clean_queries = []
-        for query in queries:
-            # Remove common prefixes
-            query = query.lstrip("- •*").strip()
-            if query and not query[0].isdigit():
-                clean_queries.append(query)
-            elif query and query[0].isdigit():
-                # Remove number prefix like "1. "
-                parts = query.split(".", 1)
-                if len(parts) > 1:
-                    clean_queries.append(parts[1].strip())
-
-        return clean_queries[:5]  # Limit to 5 queries
-
-    except Exception as e:
-        # Fallback to basic queries if LLM fails
-        fallback_msg = f"Warning: Could not generate LLM-based queries ({e})."
-        print(f"{fallback_msg} Using fallback.")
-        if last_query:
-            return [
-                "Show me more details about this data",
-                "What are some related patterns?",
-                "How does this compare to other segments?",
-                "What trends can we identify?",
-                "Are there any outliers or anomalies?",
-            ]
-        else:
-            return [
-                "How many rows are in the dataset?",
-                "Show me the first 10 rows",
-                "What are the column names?",
-                "Show me some summary statistics",
-                "What are the unique values in the first column?",
-            ]
-
-
-def interpret_results(
-    client: Union[AzureOpenAI, OpenAI],
-    question: str,
-    sql_query: str,
-    results_df,
-    model_name: str,
-) -> str:
-    """Send query results to AI for interpretation and insights."""
-    # Convert results to a readable format for the LLM
-    if len(results_df) == 0:
-        results_summary = "No data returned from the query."
-    else:
-        # Limit to first 10 rows and format nicely
-        limited_df = results_df.head(10)
-        results_summary = limited_df.to_string(index=False)
-
-        if len(results_df) > 10:
-            total_rows = len(results_df)
-            note = f"\n\n[Note: Showing first 10 of {total_rows} total rows]"
-            results_summary += note
-
-    prompt = f"""
-Analyze this data and provide key insights for: {question}
-
-Data: {results_summary}
-
-Provide a single paragraph summary with:
-- Key findings with specific numbers in **bold**
-- Notable patterns or trends
-- One actionable insight
-
-Be concise and analytical. Maximum 3-4 sentences.
-"""
-
-    response = client.chat.completions.create(
-        model=model_name,
-        messages=[{"role": "user", "content": prompt}],
-        temperature=0.1,
-        max_tokens=150,
-    )
-
-    # Track token usage
-    token_tracker.add_usage(response.usage)
-
-    content = response.choices[0].message.content
-    if content is None:
-        raise ValueError("No content returned from AI")
-
-    return content.strip()
-
-
 def process_query(
     client: Union[AzureOpenAI, OpenAI],
     query: str,
@@ -520,36 +337,9 @@ def process_query(
 
                 console.print(table)
 
-                # Always offer summary option
                 if len(res) > 20:
                     msg = f"[dim]Showing first 20 of {len(res)} rows[/dim]"
                     console.print(msg)
-
-                # Ask user if they want a summary (default to no)
-                try:
-                    want_summary = Confirm.ask(
-                        "[yellow]Would you like an AI summary?[/yellow]", default=False
-                    )
-                    if want_summary:
-                        console.print("[dim]Getting summary...[/dim]")
-                        try:
-                            interpretation = interpret_results(
-                                client, query, sql, res, model_name
-                            )
-                            console.print("\n[bold green]AI Summary:[/bold green]")
-                            # Render markdown for better formatting
-                            markdown = Markdown(interpretation)
-                            console.print(markdown)
-                        except Exception as e:
-                            msg = (
-                                "[yellow]Note: Could not generate "
-                                "AI summary ({e})[/yellow]"
-                            )
-                            console.print(msg.format(e=e))
-                except (KeyboardInterrupt, EOFError):
-                    console.print("[dim]Skipping summary.[/dim]")
-
-            # No summary for non-truncated results unless requested
 
     except Exception as e:
         console.print(f"[red]Error:[/red] {e}")
@@ -612,11 +402,6 @@ examples:
             "--show-tokens",
             action="store_true",
             help="Show token usage statistics",
-        )
-        parser.add_argument(
-            "--hide-suggestions",
-            action="store_true",
-            help="Hide question suggestions (useful for demos)",
         )
 
         args = parser.parse_args()
@@ -707,45 +492,15 @@ examples:
             return
 
         # Interactive mode
-        console.print("[bold green]AI Assistant Ready![/bold green]")
         console.print(
             "Ask questions about your data. "
             "Type 'quit', 'exit', or 'stop' to quit.\n"
         )
 
-        # Initialize tracking variables
-        last_query = None
-        sample_queries = []
-
-        # Function to refresh suggestions
-        def refresh_suggestions():
-            nonlocal sample_queries
-            if args.hide_suggestions:
-                sample_queries = []
-                return
-            sample_queries = generate_sample_queries(
-                con, client, model_name, schema_info, last_query
-            )
-            if sample_queries:
-                if last_query:
-                    console.print("[bold]New suggested questions:[/bold]")
-                else:
-                    console.print("[bold]Suggested questions to get started:[/bold]")
-                for i, query in enumerate(sample_queries, 1):
-                    console.print(f"  {i}. {query}")
-                console.print()
-
-        # Show initial suggestions
-        refresh_suggestions()
-
         while True:
             try:
                 # Get user input
-                if args.hide_suggestions or not sample_queries:
-                    prompt_text = "[bold blue]Ask a question[/bold blue]"
-                else:
-                    prompt_text = "[bold blue]Ask a question or choose 1-5[/bold blue]"
-                q = Prompt.ask(prompt_text)
+                q = Prompt.ask("[bold blue]Ask a question[/bold blue]")
             except EOFError:
                 console.print("\n[dim]Goodbye![/dim]")
                 # Show token usage statistics before exiting
@@ -762,23 +517,9 @@ examples:
             if not q.strip():
                 continue
 
-            # Check if user chose a suggestion number
-            selected_query = None
-            if q.strip().isdigit() and not args.hide_suggestions:
-                choice_num = int(q.strip())
-                if 1 <= choice_num <= len(sample_queries):
-                    selected_query = sample_queries[choice_num - 1]
-                    console.print(f"[dim]Selected: {selected_query}[/dim]")
-                else:
-                    console.print(f"[red]Please choose 1-{len(sample_queries)}[/red]")
-                    continue
-
-            # Use selected query or user's own question
-            query_to_process = selected_query if selected_query else q
-
             process_query(
                 client,
-                query_to_process,
+                q,
                 schema_info,
                 con,
                 args.show_sql,
@@ -786,11 +527,6 @@ examples:
                 model_name,
                 not args.hide_data,
             )
-
-            # Update last query and refresh suggestions
-            last_query = query_to_process
-            console.print()  # Add blank line for spacing
-            refresh_suggestions()
 
     except KeyboardInterrupt:
         console.print("\n[dim]Operation cancelled. Goodbye![/dim]")
