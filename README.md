@@ -24,7 +24,8 @@ DataTalk gives you the best of both: natural language questions + local processi
 - **100% Local Processing** - Data never leaves your machine, only schema is sent to LLM
 - **100+ LLM Models** - Powered by [LiteLLM](https://docs.litellm.ai) - OpenAI, Anthropic, Google, Ollama (local), and more
 - **Natural Language** - Ask questions in plain English, no SQL required
-- **Multiple Formats** - Supports CSV, Excel (.xlsx, .xls), and Parquet files
+- **Multiple File Formats** - Supports CSV, Excel (.xlsx, .xls), and Parquet files
+- **Scriptable** - JSON and CSV output formats for automation and pipelines
 - **Simple Configuration** - Just set `LLM_MODEL` and API key environment variables
 - **Transparent** - Use `--sql` to see generated queries
 
