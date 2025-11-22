@@ -11,12 +11,6 @@ Set Framerate 10
 
 Env PS1 "user@demo:datatalk$ "
 
-Type "uv run dtalk"
-Sleep 500ms
-Enter
-
-Sleep 2s
-
 Type "uv run dtalk sample_data/sales_data.csv"
 Sleep 500ms
 Enter
