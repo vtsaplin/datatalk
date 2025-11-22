@@ -3,7 +3,9 @@
 import os
 import re
 import litellm
-from litellm.exceptions import AuthenticationError
+
+# Suppress litellm debug messages
+litellm.suppress_debug_info = True
 
 
 class LiteLLMProvider:
@@ -30,9 +32,9 @@ User question: {question}"""
                 temperature=float(os.getenv("MODEL_TEMPERATURE", "0.1")),
                 max_tokens=500,
             )
-        except AuthenticationError as e:
-            # Clean up the error message for user-friendly display
-            cleaned_message = self._clean_auth_error(str(e))
+        except Exception as e:
+            # Clean up litellm error messages for user-friendly display
+            cleaned_message = self._clean_litellm_error(str(e))
             raise ValueError(cleaned_message) from None
         
         content = response.choices[0].message.content
@@ -52,21 +54,19 @@ User question: {question}"""
             sql = sql[:-3]
         return sql.strip()
     
-    def _clean_auth_error(self, error_message: str) -> str:
-        """Clean up authentication error message for user-friendly display."""
-        # Remove technical prefixes and noise from litellm error
+    def _clean_litellm_error(self, error_message: str) -> str:
+        """Clean up litellm error message for user-friendly display."""
+        # Remove technical prefixes and noise from litellm errors
         # Example: "litellm.AuthenticationError: AuthenticationError: OpenAIException - The api_key..."
-        # We want to extract just the core message
+        # Result: "The api_key..."
         
-        # Remove common prefixes
         cleaned = error_message
+        
+        # Remove common technical prefixes
         prefixes_to_remove = [
-            r"litellm\.AuthenticationError:\s*",
-            r"AuthenticationError:\s*",
-            r"OpenAIException\s*-\s*",
-            r"AnthropicException\s*-\s*",
-            r"GoogleException\s*-\s*",
-            r"AzureException\s*-\s*",
+            r"litellm\.\w+Error:\s*",  # litellm.AuthenticationError:, litellm.RateLimitError:, etc.
+            r"\w+Error:\s*",  # AuthenticationError:, RateLimitError:, APIError:, etc.
+            r"\w+Exception\s*-\s*",  # OpenAIException -, AnthropicException -, etc.
         ]
         
         for prefix in prefixes_to_remove:
@@ -74,12 +74,10 @@ User question: {question}"""
         
         cleaned = cleaned.strip()
         
-        # Format the final message
-        return (
-            "⚠️  Authentication Error\n\n"
-            f"{cleaned}\n\n"
-            "For help setting up API keys, see:\n"
-            "https://github.com/vtsaplin/datatalk-cli#configuration"
-        )
+        # If we somehow ended up with an empty string, return the original
+        if not cleaned:
+            cleaned = error_message
+        
+        return cleaned
 
 

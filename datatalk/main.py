@@ -285,7 +285,7 @@ examples:
                 if args.json:
                     output_json(result)
                 else:
-                    console.print(f"[red]Error:[/red] {result['error']}", highlight=False)
+                    console.print(f"\n[red]Error:[/red] {result['error']}\n", highlight=False)
                 sys.exit(1)
             
             # JSON output (machine-readable)
@@ -336,7 +336,8 @@ examples:
             )
             
             if result["error"]:
-                console.print(f"[red]Error:[/red] {result['error']}", highlight=False)
+                console.print(f"\n[red]Error:[/red] {result['error']}\n", highlight=False)
+                sys.exit(1)
             else:
                 # Show SQL if requested (--sql or --sql-only)
                 if args.sql or args.sql_only:
