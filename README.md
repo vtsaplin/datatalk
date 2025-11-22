@@ -128,8 +128,8 @@ done
 ## Development
 
 ```bash
-git clone https://github.com/vtsaplin/datatalk.git
-cd datatalk
+git clone https://github.com/vtsaplin/datatalk-cli.git
+cd datatalk-cli
 uv run dtalk sample_data/sales_data.csv
 
 # Run tests
@@ -162,7 +162,7 @@ Contributions welcome! Please:
 3. Make your changes with tests (`uv run python -m pytest`)
 4. Submit a PR
 
-[Issue Tracker](https://github.com/vtsaplin/datatalk/issues) | [Discussions](https://github.com/vtsaplin/datatalk/discussions)
+[Issue Tracker](https://github.com/vtsaplin/datatalk-cli/issues) | [Discussions](https://github.com/vtsaplin/datatalk-cli/discussions)
 
 ## License
 

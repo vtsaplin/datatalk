@@ -18,9 +18,9 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/vtsaplin/datatalk"
-Repository = "https://github.com/vtsaplin/datatalk"
-Issues = "https://github.com/vtsaplin/datatalk/issues"
+Homepage = "https://github.com/vtsaplin/datatalk-cli"
+Repository = "https://github.com/vtsaplin/datatalk-cli"
+Issues = "https://github.com/vtsaplin/datatalk-cli/issues"
 
 [project.optional-dependencies]
 test = [
