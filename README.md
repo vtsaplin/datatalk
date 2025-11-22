@@ -29,7 +29,7 @@ dtalk sales.csv
 ## Features
 
 - **Natural Language** - Ask questions in plain English, no SQL required
-- **Interactive Mode** - Ask follow-up questions conversationally
+- **Interactive Mode** - Ask multiple questions without restarting the command
 - **100% Local Processing** - Data never leaves your machine, only schema is sent to LLM
 - **Fast** - DuckDB processes gigabytes locally in seconds
 - **100+ LLM Models** - Powered by [LiteLLM](https://docs.litellm.ai) - OpenAI, Anthropic, Google, Ollama (local), and more
