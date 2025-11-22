@@ -445,9 +445,10 @@ examples:
             return
 
         if not args.file:
-            parser.print_help()
+            console.print("[red]Error:[/red] CSV or Parquet file is required")
             console.print()
-            return
+            parser.print_help()
+            sys.exit(1)
 
         # Load .env file if it exists (but don't require it)
         load_dotenv()
@@ -476,7 +477,7 @@ examples:
         load_data_to_duckdb(path, con)
         schema_info = get_schema(con)
 
-        console.print("\n[green]Data loaded successfully.[/green]")
+        console.print("\n[green]Data loaded successfully![/green]")
         show_basic_stats(con, console, not args.hide_schema)
 
         # Non-interactive mode

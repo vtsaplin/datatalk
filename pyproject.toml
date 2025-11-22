@@ -1,6 +1,6 @@
 [project]
 name = "datatalk-cli"
-version = "0.1.22"
+version = "0.1.23"
 description = "Ask questions about your CSV, Excel or Parquet data in natural language."
 readme = "README.md"
 license = "MIT"
@@ -31,7 +31,9 @@ test = [
 dtalk = "datatalk.main:main"
 
 [tool.uv]
-dev-dependencies = []
+dev-dependencies = [
+    "pytest>=7.0.0",
+]
 
 [tool.setuptools.packages.find]
 include = ["datatalk*"]

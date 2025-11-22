@@ -133,8 +133,8 @@ cd datatalk
 uv run dtalk sample_data/sales_data.csv
 
 # Run tests
-uv sync --extra test
-uv run pytest
+uv sync
+uv run python -m pytest
 
 # Build package
 python -m build
@@ -159,7 +159,7 @@ A: DuckDB handles multi-gigabyte files. Parquet is faster for large datasets.
 Contributions welcome! Please:
 1. Fork the repository
 2. Create a feature branch
-3. Make your changes with tests (`uv run pytest`)
+3. Make your changes with tests (`uv run python -m pytest`)
 4. Submit a PR
 
 [Issue Tracker](https://github.com/vtsaplin/datatalk/issues) | [Discussions](https://github.com/vtsaplin/datatalk/discussions)

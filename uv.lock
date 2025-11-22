@@ -51,7 +51,7 @@ wheels = [
 
 [[package]]
 name = "datatalk-cli"
-version = "0.1.21"
+version = "0.1.22"
 source = { editable = "." }
 dependencies = [
     { name = "duckdb" },
@@ -67,6 +67,11 @@ test = [
     { name = "pytest" },
 ]
 
+[package.dev-dependencies]
+dev = [
+    { name = "pytest" },
+]
+
 [package.metadata]
 requires-dist = [
     { name = "duckdb", specifier = ">=0.8.0" },
@@ -79,7 +84,7 @@ requires-dist = [
 ]
 
 [package.metadata.requires-dev]
-dev = []
+dev = [{ name = "pytest", specifier = ">=7.0.0" }]
 
 [[package]]
 name = "distro"
