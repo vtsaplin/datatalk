@@ -50,7 +50,6 @@ class TestEndToEndSmoke:
             str(test_data_path),
             "--prompt",
             "How many products are there?",
-            "--hide-data",
         ]
 
         # Run the command
@@ -78,7 +77,7 @@ class TestEndToEndSmoke:
         assert len(result.stdout) > 0
 
     def test_app_shows_sql_when_requested(self, test_data_path, mock_env_vars):
-        """Test that the app shows SQL queries when --show-sql flag is used."""
+        """Test that the app shows SQL queries when --sql flag is used."""
         cmd = [
             sys.executable,
             "-m",
@@ -86,8 +85,7 @@ class TestEndToEndSmoke:
             str(test_data_path),
             "--prompt",
             "Show me all products",
-            "--show-sql",
-            "--hide-data",
+            "--sql",
         ]
 
         result = subprocess.run(
@@ -209,8 +207,8 @@ class TestEndToEndSmoke:
         assert result.returncode == 0
         assert "No configuration file to delete" in result.stdout
 
-    def test_app_hide_schema_flag_works(self, test_data_path, mock_env_vars):
-        """Test that the --hide-schema flag hides detailed column info."""
+    def test_app_no_schema_flag_works(self, test_data_path, mock_env_vars):
+        """Test that the --no-schema flag hides detailed column info."""
         cmd = [
             sys.executable,
             "-m",
@@ -218,8 +216,7 @@ class TestEndToEndSmoke:
             str(test_data_path),
             "--prompt",
             "Show me the data",
-            "--hide-schema",
-            "--hide-data",
+            "--no-schema",
         ]
 
         result = subprocess.run(

@@ -22,11 +22,11 @@ DataTalk gives you the best of both: natural language questions + local processi
 ## Features
 
 - **100% Local Processing** - Data never leaves your machine, only schema is sent to LLM
-- **Multiple LLM Providers** - OpenAI, Azure, Anthropic, Ollama (local), Google Gemini
+- **100+ LLM Models** - Powered by [LiteLLM](https://docs.litellm.ai) - OpenAI, Anthropic, Google, Ollama (local), and more
 - **Natural Language** - Ask questions in plain English, no SQL required
 - **Multiple Formats** - Supports CSV, Excel (.xlsx, .xls), and Parquet files
-- **Extensible** - Pluggable LLM provider architecture
-- **Transparent** - Use `--show-sql` to see generated queries
+- **Simple Configuration** - Just set `LLM_MODEL` and API key environment variables
+- **Transparent** - Use `--sql` to see generated queries
 
 ## Installation
 
@@ -39,62 +39,96 @@ pip install datatalk-cli
 ## Quick Start
 
 ```bash
-# Option 1: Using OpenAI
+# Set your model and API key
+export LLM_MODEL="gpt-4o"
 export OPENAI_API_KEY="your-key-here"
-dtalk sales_data.csv "What are the top 5 products by revenue?"
 
-# Option 2: Using local Ollama (fully private)
-export OLLAMA_MODEL="llama3.1"
-dtalk sales_data.csv "What are the top 5 products by revenue?"
+# Start interactive mode - ask multiple questions
+dtalk sales_data.csv
+
+# You'll get a prompt where you can ask questions naturally:
+# > What are the top 5 products by revenue?
+# > Show me monthly sales trends
+# > Which customers made purchases over $1000?
+
+# Or use single query mode for quick answers
+dtalk sales_data.csv -p "What are the top 5 products by revenue?"
+
+# Or use local Ollama (fully private, no API key needed!)
+export LLM_MODEL="ollama/llama3.1"
+dtalk sales_data.csv  # Interactive mode works with any model
 ```
 
 ## Configuration
 
-DataTalk supports multiple LLM providers. Choose the one that works best for you:
+DataTalk uses [LiteLLM](https://docs.litellm.ai) to support 100+ models from various providers through a unified interface.
 
-### OpenAI
+### Required Environment Variables
+
+Set two environment variables:
+
 ```bash
-export OPENAI_API_KEY="your-api-key"
-export OPENAI_MODEL="gpt-4o"  # Optional, defaults to gpt-4o
+# 1. Choose your model
+export LLM_MODEL="gpt-4o"
+
+# 2. Set the API key for your provider
+export OPENAI_API_KEY="your-key"
 ```
 
-### Azure OpenAI
+### Supported Models
+
+**OpenAI:**
 ```bash
-export AZURE_DEPLOYMENT_TARGET_URL="https://your-resource.openai.azure.com/..."
-export AZURE_OPENAI_API_KEY="your-api-key"
+export LLM_MODEL="gpt-4o"  # or gpt-4o-mini, gpt-3.5-turbo
+export OPENAI_API_KEY="sk-..."
 ```
 
-### Anthropic Claude
+**Anthropic Claude:**
 ```bash
-export ANTHROPIC_API_KEY="your-api-key"
-export ANTHROPIC_MODEL="claude-3-5-sonnet-20241022"  # Optional
+export LLM_MODEL="claude-3-5-sonnet-20241022"
+export ANTHROPIC_API_KEY="sk-ant-..."
 ```
 
-### Ollama (Local Models)
+**Google Gemini:**
 ```bash
-# Install Ollama: https://ollama.ai
-# Start Ollama and pull a model: ollama pull llama3.1
-
-export OLLAMA_BASE_URL="http://localhost:11434/v1"  # Optional, default
-export OLLAMA_MODEL="llama3.1"  # Or mistral, codellama, etc.
+export LLM_MODEL="gemini-1.5-flash"  # or gemini-1.5-pro
+export GEMINI_API_KEY="..."
 ```
 
-### Google Gemini
+**Ollama (Local - fully private!):**
 ```bash
-# Install optional dependency: pip install datatalk-cli[gemini]
+# Start Ollama: ollama serve
+# Pull a model: ollama pull llama3.1
 
-export GEMINI_API_KEY="your-api-key"  # Get from https://ai.google.dev
-export GEMINI_MODEL="gemini-1.5-flash"  # Optional, or gemini-1.5-pro
+export LLM_MODEL="ollama/llama3.1"  # or ollama/mistral, ollama/codellama
+# No API key needed for local models!
 ```
 
-*More providers can be added through the extensible provider architecture.*
-
-Or create a `.env` file, or run `dtalk` and follow the interactive setup.
-
-**Commands:**
+**Azure OpenAI:**
 ```bash
-dtalk --config-info      # Show configuration
-dtalk --reset-config     # Clear configuration
+export LLM_MODEL="azure/gpt-4o"  # Use your deployment name
+export AZURE_API_KEY="..."
+export AZURE_API_BASE="https://your-resource.openai.azure.com"
+export AZURE_API_VERSION="2024-02-01"
+```
+*Note: Replace `gpt-4o` with your actual Azure deployment name*
+
+**And 100+ more models!** See [LiteLLM Providers](https://docs.litellm.ai/docs/providers) for the complete list including Cohere, Replicate, Hugging Face, AWS Bedrock, and more.
+
+### Optional Configuration
+
+**MODEL_TEMPERATURE** - Control LLM response randomness (default: 0.1)
+```bash
+export MODEL_TEMPERATURE="0.5"  # Range: 0.0-2.0. Lower = more deterministic, Higher = more creative
+```
+
+### Using .env file
+
+Create a `.env` file in your project directory:
+
+```bash
+LLM_MODEL=gpt-4o
+OPENAI_API_KEY=your-key
 ```
 
 ## Usage
@@ -106,7 +140,9 @@ dtalk sales_data.csv
 
 **Direct query** - single question and exit:
 ```bash
-dtalk sales_data.csv "What were total sales in Q4?"
+dtalk sales_data.csv -p "What were total sales in Q4?"
+# or using long form:
+dtalk sales_data.csv --prompt "What were total sales in Q4?"
 ```
 
 ### Examples
@@ -133,25 +169,84 @@ dtalk budget.xls "Show expenses by department"
 dtalk data.parquet "Count distinct users"
 ```
 
-## Advanced Options
+## Options
+
+### Query Modes
 
 ```bash
-dtalk data.csv "query" --show-sql       # Show generated SQL
-dtalk data.csv --hide-schema            # Hide dataset schema
-dtalk data.csv "query" --hide-data      # Hide query results
+# Interactive mode (default) - ask multiple questions
+dtalk data.csv
+
+# Non-interactive mode - single query and exit
+dtalk data.csv -p "What are the top 5 products?"
+dtalk data.csv --prompt "What are the top 5 products?"
+```
+
+### Output Formats (with `-p` only)
+
+DataTalk supports multiple output formats for different use cases:
+
+```bash
+# Human-readable table (default)
+dtalk data.csv -p "Top 5 products"
+
+# JSON format - for scripting and automation
+dtalk data.csv -p "Top 5 products" --json
+# Output: {"sql": "SELECT ...", "data": [...], "error": null}
+
+# CSV format - for export and further processing
+dtalk data.csv -p "Top 5 products" --csv
+# Output: product_name,revenue
+#         Apple,1000
+#         Orange,500
+```
+
+### Debug & Display Options
+
+```bash
+# Show generated SQL along with results
+dtalk data.csv -p "query" -s
+dtalk data.csv -p "query" --sql
+
+# Show only SQL without executing (for debugging/validation)
+dtalk data.csv -p "query" --sql-only
+
+# Hide column details table when loading data
+dtalk data.csv --no-schema
+
+# Combine options
+dtalk data.csv -p "query" -s --no-schema    # Show SQL, hide schema
 ```
 
 ### Scripting
 
+DataTalk supports structured output formats for integration with scripts and pipelines:
+
 ```bash
-# Use in scripts
-REPORT=$(dtalk sales.csv "yesterday's revenue" --hide-data)
-echo "$REPORT" | mail -s "Report" team@company.com
+# JSON output for scripting
+REVENUE=$(dtalk sales.csv -p "total revenue" --json | jq -r '.data[0].total_revenue')
+echo "Total Revenue: $REVENUE"
+
+# CSV output for further processing
+dtalk sales.csv -p "sales by region" --csv | \
+  awk -F',' '{sum+=$2} END {print "Grand Total:", sum}'
 
 # Process multiple files
 for file in data_*.csv; do
-  dtalk "$file" "row count"
+  COUNT=$(dtalk "$file" -p "row count" --json | jq -r '.data[0].count')
+  echo "$file: $COUNT rows"
 done
+
+# Generate SQL for external tools
+SQL=$(dtalk sales.csv -p "top 10 products" --sql-only)
+echo "$SQL" | duckdb production.db
+
+# Export filtered data
+dtalk sales.csv -p "sales from Q4 2024" --csv > q4_sales.csv
+
+# Combine with other tools
+dtalk sales.csv -p "top products" --json | \
+  jq '.data[] | select(.revenue > 1000)'
 ```
 
 
@@ -160,14 +255,44 @@ done
 ```bash
 git clone https://github.com/vtsaplin/datatalk-cli.git
 cd datatalk-cli
-uv run dtalk sample_data/sales_data.csv
+
+# Install dependencies (first time setup)
+uv sync
+
+# Option 1: Run from source (recommended, no installation needed)
+uv run python -m datatalk.main sample_data/sales_data.csv
+
+# Option 2: Install in editable mode (changes reflected immediately)
+uv pip install -e .
+dtalk sample_data/sales_data.csv
+
+# Uninstall editable install (if needed)
+uv pip uninstall datatalk-cli
 
 # Run tests
-uv sync
 uv run python -m pytest
 
 # Build package
 python -m build
+```
+
+## Exit Codes
+
+DataTalk returns standard exit codes for use in scripts and automation:
+
+| Exit Code | Meaning | Example |
+|-----------|---------|---------|
+| `0` | Success | Query completed successfully |
+| `1` | Runtime error | Missing API key, query failed, file not found |
+| `2` | Invalid arguments | `--json` without `-p`, invalid option combination |
+
+**Example usage in scripts:**
+```bash
+if dtalk sales.csv -p "total revenue" --json > result.json; then
+    echo "Success!"
+else
+    echo "Failed with exit code $?"
+fi
 ```
 
 ## FAQ
@@ -195,4 +320,4 @@ Contributions welcome! Please:
 
 MIT License - see [LICENSE](LICENSE) file.
 
-Built with [DuckDB](https://duckdb.org/), [Rich](https://rich.readthedocs.io/), and multiple LLM providers.
+Built with [DuckDB](https://duckdb.org/), [LiteLLM](https://docs.litellm.ai), and [Rich](https://rich.readthedocs.io/).

@@ -1,17 +1,16 @@
 """Core query processing logic - UI-agnostic orchestrator."""
 
-from typing import Any, Optional
+from typing import Any
 
 import duckdb
-import pandas as pd
 from rich.console import Console
 
 from datatalk import database
-from datatalk.llm import LLMProvider
+from datatalk.llm import LiteLLMProvider
 
 
 def process_query(
-    provider: LLMProvider,
+    provider: LiteLLMProvider,
     question: str,
     schema: str,
     con: duckdb.DuckDBPyConnection,
