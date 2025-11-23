@@ -30,7 +30,7 @@ from pathlib import Path
 import pytest
 
 
-class TestCLI:
+class TestSuite:
     """E2E tests for DataTalk CLI."""
 
     @pytest.fixture
@@ -52,7 +52,7 @@ class TestCLI:
     # ==================== FILE LOADING ====================
 
     def test_load_csv_file(self, test_data_csv):
-        """Load CSV and process basic query."""
+        """Load CSV and process basic query in non-interactive mode."""
         cmd = [
             sys.executable,
             "-m",
@@ -76,13 +76,14 @@ class TestCLI:
             1,
         ], f"Command failed unexpectedly with stderr: {result.stderr}"
 
-        # Should load data successfully
-        assert "Data loaded successfully!" in result.stdout
+        # In non-interactive mode, should NOT show decorative output
+        assert "Data loaded successfully!" not in result.stdout
+        assert "██████" not in result.stdout  # No banner
         # Should not enter interactive mode
         assert "Question" not in result.stdout
 
     def test_load_parquet_file(self, test_data_parquet):
-        """Load Parquet file."""
+        """Load Parquet file in non-interactive mode."""
         cmd = [
             sys.executable,
             "-m",
@@ -106,11 +107,12 @@ class TestCLI:
             1,
         ], f"Command failed unexpectedly with stderr: {result.stderr}"
 
-        # Should load data successfully
-        assert "Data loaded successfully!" in result.stdout
+        # In non-interactive mode, should NOT show decorative output
+        assert "Data loaded successfully!" not in result.stdout
+        assert "██████" not in result.stdout  # No banner
 
     def test_load_excel_file(self, test_data_excel):
-        """Load Excel file."""
+        """Load Excel file in non-interactive mode."""
         cmd = [
             sys.executable,
             "-m",
@@ -134,8 +136,9 @@ class TestCLI:
             1,
         ], f"Command failed unexpectedly with stderr: {result.stderr}"
 
-        # Should load data successfully
-        assert "Data loaded successfully!" in result.stdout
+        # In non-interactive mode, should NOT show decorative output
+        assert "Data loaded successfully!" not in result.stdout
+        assert "██████" not in result.stdout  # No banner
 
     def test_load_invalid_format_fails(self, tmp_path):
         """Reject unsupported file format."""
@@ -226,7 +229,7 @@ class TestCLI:
             assert "Error" in result.stdout or "error" in result.stdout.lower()
 
     def test_output_json(self, test_data_csv):
-        """JSON output with --json flag."""
+        """JSON output with --json flag should be pure JSON, parseable by scripts."""
         cmd = [
             sys.executable,
             "-m",
@@ -251,17 +254,26 @@ class TestCLI:
             1,
         ], f"Command failed unexpectedly with stderr: {result.stderr}"
 
-        # If succeeded, output should be valid JSON
+        # If succeeded, stdout should be ONLY valid JSON (nothing else)
         if result.returncode == 0:
             try:
+                # The entire stdout should parse as JSON
                 data = json.loads(result.stdout)
                 # Should have expected structure
-                assert "sql" in data or "error" in data
-            except json.JSONDecodeError:
-                pytest.fail("Output is not valid JSON")
+                assert "sql" in data, "JSON output missing 'sql' field"
+                assert "data" in data, "JSON output missing 'data' field"
+                assert "error" in data, "JSON output missing 'error' field"
+                # Error should be null on success
+                assert data["error"] is None, f"Unexpected error in output: {data['error']}"
+            except json.JSONDecodeError as e:
+                pytest.fail(
+                    f"Output is not pure JSON (not parseable for scripting).\n"
+                    f"Error: {e}\n"
+                    f"Output was:\n{result.stdout}"
+                )
 
     def test_output_csv(self, test_data_csv):
-        """CSV output with --csv flag."""
+        """CSV output with --csv flag should be pure CSV, parseable by scripts."""
         cmd = [
             sys.executable,
             "-m",
@@ -286,10 +298,35 @@ class TestCLI:
             1,
         ], f"Command failed unexpectedly with stderr: {result.stderr}"
 
-        # If succeeded, output should be CSV format (contains commas or is empty)
+        # If succeeded, stdout should be ONLY valid CSV (nothing else)
         if result.returncode == 0:
-            # CSV output should not contain rich formatting
-            assert "Data loaded successfully!" not in result.stdout or "," in result.stdout
+            import csv
+            import io
+            
+            try:
+                # The entire stdout should be parseable as CSV
+                reader = csv.reader(io.StringIO(result.stdout))
+                rows = list(reader)
+                
+                # Should have at least a header row
+                assert len(rows) > 0, "CSV output is empty"
+                
+                # First row should be header with column names
+                header = rows[0]
+                assert len(header) > 0, "CSV header is empty"
+                
+                # If there are data rows, they should have same number of columns as header
+                if len(rows) > 1:
+                    for i, row in enumerate(rows[1:], start=1):
+                        assert len(row) == len(header), (
+                            f"Row {i} has {len(row)} columns, but header has {len(header)}"
+                        )
+            except Exception as e:
+                pytest.fail(
+                    f"Output is not pure CSV (not parseable for scripting).\n"
+                    f"Error: {e}\n"
+                    f"Output was:\n{result.stdout}"
+                )
 
     def test_output_sql_only(self, test_data_csv):
         """Show only SQL with --sql-only flag."""
@@ -327,7 +364,7 @@ class TestCLI:
     # ==================== DISPLAY OPTIONS ====================
 
     def test_flag_no_schema(self, test_data_csv):
-        """Hide schema table with --no-schema."""
+        """--no-schema flag in non-interactive mode (already suppressed)."""
         cmd = [
             sys.executable,
             "-m",
@@ -352,13 +389,14 @@ class TestCLI:
             1,
         ], f"Command failed unexpectedly with stderr: {result.stderr}"
 
-        # Should load data successfully
-        assert "Data loaded successfully!" in result.stdout
+        # In non-interactive mode, decorative output is already suppressed
+        assert "Data loaded successfully!" not in result.stdout
+        assert "Dataset Statistics" not in result.stdout
 
     # ==================== QUERY PROCESSING ====================
 
     def test_query_select_all(self, test_data_csv):
-        """Process SELECT * query."""
+        """Process SELECT * query in non-interactive mode."""
         cmd = [
             sys.executable,
             "-m",
@@ -382,11 +420,12 @@ class TestCLI:
             1,
         ], f"Command failed unexpectedly with stderr: {result.stderr}"
 
-        # Should load data successfully
-        assert "Data loaded successfully!" in result.stdout
+        # In non-interactive mode, should NOT show decorative output
+        assert "Data loaded successfully!" not in result.stdout
+        assert "██████" not in result.stdout
 
     def test_query_aggregation(self, test_data_csv):
-        """Process COUNT/SUM/AVG query."""
+        """Process COUNT/SUM/AVG query in non-interactive mode."""
         cmd = [
             sys.executable,
             "-m",
@@ -410,11 +449,12 @@ class TestCLI:
             1,
         ], f"Command failed unexpectedly with stderr: {result.stderr}"
 
-        # Should load data successfully
-        assert "Data loaded successfully!" in result.stdout
+        # In non-interactive mode, should NOT show decorative output
+        assert "Data loaded successfully!" not in result.stdout
+        assert "██████" not in result.stdout
 
     def test_query_filtering(self, test_data_csv):
-        """Process WHERE clause query."""
+        """Process WHERE clause query in non-interactive mode."""
         cmd = [
             sys.executable,
             "-m",
@@ -438,8 +478,9 @@ class TestCLI:
             1,
         ], f"Command failed unexpectedly with stderr: {result.stderr}"
 
-        # Should load data successfully
-        assert "Data loaded successfully!" in result.stdout
+        # In non-interactive mode, should NOT show decorative output
+        assert "Data loaded successfully!" not in result.stdout
+        assert "██████" not in result.stdout
 
     # ==================== ERROR HANDLING ====================
 

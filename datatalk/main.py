@@ -9,125 +9,19 @@ from typing import Any
 
 import pandas as pd
 from dotenv import load_dotenv
-from rich import box
 from rich.console import Console
 from rich.prompt import Prompt
-from rich.table import Table
 
 from datatalk import database, query
 from datatalk.llm import LiteLLMProvider
-
-
-# ============================================================================
-# Terminal Rendering Functions
-# ============================================================================
-
-
-def print_logo(console: Console) -> None:
-    """Print the DataTalk ASCII logo."""
-    logo = """
-[bold cyan]
-██████╗  █████╗ ████████╗ █████╗ ████████╗ █████╗ ██╗     ██╗  ██╗
-██╔══██╗██╔══██╗╚══██╔══╝██╔══██╗╚══██╔══╝██╔══██╗██║     ██║ ██╔╝
-██║  ██║███████║   ██║   ███████║   ██║   ███████║██║     █████╔╝
-██║  ██║██╔══██║   ██║   ██╔══██║   ██║   ██╔══██║██║     ██╔═██╗
-██████╔╝██║  ██║   ██║   ██║  ██║   ██║   ██║  ██║███████╗██║  ██╗
-╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝
-[/bold cyan]
-[dim]Ask questions about your CSV, Excel or Parquet data in natural language.[/dim]
-"""
-    console.print(logo, highlight=False)
-
-
-def print_configuration_help(console: Console) -> None:
-    """Print helpful configuration message when LLM_MODEL is not set."""
-    console.print("[yellow]⚠️  Please configure your LLM model first[/yellow]\n", highlight=False)
-    console.print("[bold]Quick setup:[/bold]", highlight=False)
-    console.print("  [cyan]export LLM_MODEL=gpt-4o[/cyan]", highlight=False)
-    console.print("  [cyan]export OPENAI_API_KEY=your-key[/cyan]\n", highlight=False)
-    console.print("[bold]Popular models:[/bold]", highlight=False)
-    console.print("  [green]•[/green] gpt-4o, gpt-4o-mini, gpt-3.5-turbo [dim](OpenAI)[/dim]", highlight=False)
-    console.print("  [green]•[/green] azure/gpt-4o [dim](Azure OpenAI)[/dim]", highlight=False)
-    console.print("  [green]•[/green] claude-3-5-sonnet-20241022 [dim](Anthropic)[/dim]", highlight=False)
-    console.print("  [green]•[/green] gemini-1.5-flash, gemini-1.5-pro [dim](Google)[/dim]", highlight=False)
-    console.print("  [green]•[/green] ollama/llama3.1, ollama/mistral [dim](Ollama - local)[/dim]\n", highlight=False)
-    console.print("📚 Full guide: [blue]https://github.com/vtsaplin/datatalk-cli#configuration[/blue]", highlight=False)
-
-
-def print_file_required_help(console: Console) -> None:
-    """Print helpful message when no data file is specified."""
-    console.print("\n[yellow]📄 Please specify a data file to analyze[/yellow]\n", highlight=False)
-    console.print("[bold]Usage:[/bold]", highlight=False)
-    console.print("  [cyan]dtalk[/cyan] [green]<file>[/green] [dim][question][/dim]\n", highlight=False)
-    console.print("[bold]Examples:[/bold]", highlight=False)
-    console.print("  [cyan]dtalk[/cyan] [green]data.csv[/green]", highlight=False)
-    console.print("  [cyan]dtalk[/cyan] [green]report.xlsx[/green] [dim]-p 'What are the top 5 products?'[/dim]", highlight=False)
-    console.print("  [cyan]dtalk[/cyan] [green]data.parquet[/green] [dim]-s[/dim]\n", highlight=False)
-    console.print("[bold]Supported formats:[/bold] CSV, Excel (.xlsx, .xls), Parquet", highlight=False)
-    console.print()
-
-
-def print_stats(stats: dict[str, Any], console: Console, show_schema: bool = True) -> None:
-    """Render dataset statistics."""
-    row_count = stats["row_count"]
-    col_count = stats["col_count"]
-    columns = stats["columns"]
-
-    console.print("\n[bold green]Dataset Statistics[/bold green]", highlight=False)
-    console.print(f"• Rows: [cyan]{row_count:,}[/cyan]", highlight=False)
-    console.print(f"• Columns: [cyan]{col_count}[/cyan]", highlight=False)
-
-    # Show column info in a table only if show_schema is True
-    if show_schema and columns:
-        table = Table(
-            show_header=True,
-            header_style="bold magenta",
-            box=box.SIMPLE,
-        )
-        table.add_column("Column", style="cyan")
-        table.add_column("Type", style="yellow")
-        table.add_column("Sample Values", style="dim")
-
-        for col in columns:
-            table.add_row(col["name"], col["type"], col["samples"])
-
-        console.print(table)
-
-    console.print()
-
-
-def print_query_results(df: pd.DataFrame, console: Console, limit: int = 20) -> None:
-    """Render query results as a table."""
-    if len(df) == 0:
-        console.print("[yellow]No results found.[/yellow]", highlight=False)
-        return
-
-    # Create a rich table for better formatting
-    table = Table(
-        show_header=True,
-        header_style="bold magenta",
-        box=box.SIMPLE,
-    )
-
-    # Add columns
-    for col in df.columns:
-        table.add_column(col)
-
-    # Add rows (limit to first N for readability)
-    row_count = 0
-    for _, row in df.iterrows():
-        if row_count >= limit:
-            ellipsis = ["..." for _ in range(len(df.columns) - 1)]
-            table.add_row("...", *ellipsis)
-            break
-        table.add_row(*[str(val) for val in row])
-        row_count += 1
-
-    console.print(table)
-
-    if len(df) > limit:
-        msg = f"[dim]Showing first {limit} of {len(df)} rows[/dim]"
-        console.print(msg, highlight=False)
+from datatalk.printer import (
+    Printer,
+    print_logo,
+    print_configuration_help,
+    print_file_required_help,
+    print_stats,
+    print_query_results,
+)
 
 
 def output_json(result: dict[str, Any]) -> None:
@@ -146,11 +40,6 @@ def output_csv(df: pd.DataFrame) -> None:
         print(df.to_csv(index=False, lineterminator="\n"), end="")
 
 
-# ============================================================================
-# Main CLI Entry Point
-# ============================================================================
-
-
 class CleanArgumentParser(argparse.ArgumentParser):
     """ArgumentParser with clean error messages (no program name prefix)."""
     
@@ -166,10 +55,6 @@ def main():
     console = Console()
 
     try:
-        # Display logo
-        print_logo(console)
-
-        # Parse command line arguments
         epilog_text = """
 examples:
   # Interactive mode
@@ -233,18 +118,23 @@ examples:
         if (args.json or args.csv) and not args.prompt:
             parser.error("--json and --csv require -p/--prompt (non-interactive mode)")
 
+        # Create printer (quiet in non-interactive mode)
+        printer = Printer(console, quiet=args.prompt is not None)
+        
+        print_logo(printer)
+
         # Load .env file if it exists (but don't require it)
         load_dotenv()
 
-        # Get LLM model from environment - check this FIRST as it's more fundamental
+        # Get LLM model from environment
         model = os.getenv("LLM_MODEL")
         if not model:
-            print_configuration_help(console)
+            print_configuration_help(printer)
             sys.exit(1)
 
-        # Then check if file is provided
+        # Check if file is provided
         if not args.file:
-            print_file_required_help(console)
+            print_file_required_help(printer)
             sys.exit(1)
 
         # Create LLM provider
@@ -257,7 +147,7 @@ examples:
             app_version = "unknown"
         
         version_text = f"DataTalk v{app_version} — powered by {model}"
-        console.print(version_text, highlight=False)
+        printer.decorative(version_text, highlight=False)
 
         # Create database connection and load data
         path = args.file
@@ -265,11 +155,11 @@ examples:
         database.load_data(con, path)
         schema_info = database.get_schema(con)
 
-        console.print("\n[green]Data loaded successfully![/green]", highlight=False)
+        printer.decorative("\n[green]Data loaded successfully![/green]", highlight=False)
         
         # Get and display statistics
         stats = database.get_stats(con)
-        print_stats(stats, console, not args.no_schema)
+        print_stats(stats, printer, not args.no_schema)
 
         # Non-interactive mode
         if args.prompt:
@@ -278,36 +168,37 @@ examples:
                 args.prompt,
                 schema_info,
                 con,
-                console,
+                printer,
             )
             
             if result["error"]:
                 if args.json:
                     output_json(result)
+                elif args.csv:
+                    sys.stderr.write(f"Error: {result['error']}\n")
                 else:
-                    console.print(f"\n[red]Error:[/red] {result['error']}\n", highlight=False)
+                    printer.result(f"\n[red]Error:[/red] {result['error']}\n", highlight=False)
                 sys.exit(1)
             
-            # JSON output (machine-readable)
+            # Machine-readable output (JSON/CSV)
             if args.json:
                 output_json(result)
-            # CSV output (export format)
             elif args.csv:
                 output_csv(result["dataframe"])
-            # Standard output (human-readable)
+            # Human-readable output (non-interactive mode)
             else:
                 # Show SQL if requested (--sql or --sql-only)
                 if args.sql or args.sql_only:
-                    console.print(f"[cyan]SQL:[/cyan] [bold]{result['sql']}[/bold]", highlight=False)
+                    printer.result(f"[cyan]SQL:[/cyan] [bold]{result['sql']}[/bold]", highlight=False)
                 
                 # Show data unless --sql-only is specified
                 if not args.sql_only:
-                    print_query_results(result["dataframe"], console)
+                    print_query_results(result["dataframe"], printer)
             
             return
 
         # Interactive mode
-        console.print(
+        printer.result(
             "Ask questions about your data. "
             "Type 'quit', 'exit', 'stop', or press Ctrl+C to exit.\n",
             highlight=False
@@ -315,14 +206,13 @@ examples:
 
         while True:
             try:
-                # Get user input
                 q = Prompt.ask("[bold blue]Question[/bold blue]")
             except EOFError:
-                console.print("\n[dim]Goodbye![/dim]\n", highlight=False)
+                printer.result("\n[dim]Goodbye![/dim]\n", highlight=False)
                 break
 
             if q.lower() in ["quit", "exit", "q", "stop", "bye", "goodbye"]:
-                console.print("[dim]Goodbye![/dim]\n", highlight=False)
+                printer.result("[dim]Goodbye![/dim]\n", highlight=False)
                 break
             if not q.strip():
                 continue
@@ -332,20 +222,18 @@ examples:
                 q,
                 schema_info,
                 con,
-                console,
+                printer,
             )
             
             if result["error"]:
-                console.print(f"\n[red]Error:[/red] {result['error']}\n", highlight=False)
+                printer.result(f"\n[red]Error:[/red] {result['error']}\n", highlight=False)
                 sys.exit(1)
             else:
-                # Show SQL if requested (--sql or --sql-only)
                 if args.sql or args.sql_only:
-                    console.print(f"[cyan]SQL:[/cyan] [bold]{result['sql']}[/bold]", highlight=False)
+                    printer.result(f"[cyan]SQL:[/cyan] [bold]{result['sql']}[/bold]", highlight=False)
                 
-                # Show data unless --sql-only is specified
                 if not args.sql_only:
-                    print_query_results(result["dataframe"], console)
+                    print_query_results(result["dataframe"], printer)
 
     except KeyboardInterrupt:
         console.print("\n[dim]Goodbye![/dim]\n", highlight=False)
