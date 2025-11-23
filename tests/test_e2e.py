@@ -48,7 +48,6 @@ class TestSuite:
         """Path to Excel test data file."""
         return Path(__file__).parent / "test_data_e2e.xlsx"
 
-
     # ==================== FILE LOADING ====================
 
     def test_load_csv_file(self, test_data_csv):
@@ -499,4 +498,36 @@ class TestSuite:
         assert result.returncode != 0
         # Should show helpful message about needing a file
         assert "Please specify a data file" in result.stdout or "usage:" in result.stderr
+
+    # ==================== INTERACTIVE MODE ====================
+
+    def test_interactive_mode(self, test_data_csv):
+        """Interactive mode processes query and exits gracefully."""
+        cmd = [
+            sys.executable,
+            "-m",
+            "datatalk.main",
+            str(test_data_csv),
+        ]
+
+        result = subprocess.run(
+            cmd,
+            input="How many rows?\nquit\n",
+            cwd=Path(__file__).parent.parent,
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+
+        # Should complete (may fail if API key invalid, but shouldn't crash)
+        assert result.returncode in [
+            0,
+            1,
+        ], f"Command failed unexpectedly with stderr: {result.stderr}"
+
+        # Should show interactive mode elements
+        assert "Ask questions about your data" in result.stdout
+        assert "██████" in result.stdout  # Banner shown in interactive mode
+        assert "Dataset Statistics" in result.stdout
+        assert "Goodbye" in result.stdout
 

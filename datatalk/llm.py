@@ -16,14 +16,21 @@ class LiteLLMProvider:
     
     def to_sql(self, question: str, schema: str) -> str:
         """Convert natural language to SQL using any LLM via LiteLLM."""
-        prompt = f"""You are a data assistant.
-The user asks questions about a table named 'events'.
-Schema of events: {schema}
+        prompt = f"""You are a SQL query generator. Convert the user's question into a valid DuckDB SQL query.
 
-Return ONLY valid SQL for DuckDB, nothing else.
-SQL should start with SELECT and must reference the 'events' table.
+Table name: events
+Schema: {schema}
 
-User question: {question}"""
+CRITICAL RULES:
+- Output ONLY the SQL query, nothing else
+- No explanations, no apologies, no refusals
+- If the question doesn't make sense, generate a simple SELECT * FROM events LIMIT 1
+- Query must reference the 'events' table
+- Do not include markdown code blocks
+
+User question: {question}
+
+SQL query:"""
         
         try:
             response = litellm.completion(
