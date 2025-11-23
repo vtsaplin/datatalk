@@ -2,17 +2,17 @@ Output docs/demo.gif
 
 Require uv
 
-Set Shell "zsh"
-Set Theme "OneHalfLight"
-Set FontSize 12
-Set Width 800
-Set Height 450
+Set Shell "bash"
+Set FontSize 32
+Set Width 1920
+Set Height 1080
+Set Theme "Dracula"
 Set Framerate 10
 
 Env PS1 "user@demo:datatalk$ "
 
 Type "uv run dtalk sample_data/sales_data.csv"
-Sleep 500ms
+Sleep 100ms
 Enter
 
 Sleep 3s
