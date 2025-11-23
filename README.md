@@ -260,31 +260,9 @@ dtalk sales.csv -p "top products" --json | \
 ```
 
 
-## Development
+## Contributing
 
-```bash
-git clone https://github.com/vtsaplin/datatalk-cli.git
-cd datatalk-cli
-
-# Install dependencies (first time setup)
-uv sync
-
-# Option 1: Run from source (recommended, no installation needed)
-uv run python -m datatalk.main sample_data/sales_data.csv
-
-# Option 2: Install in editable mode (changes reflected immediately)
-uv pip install -e .
-dtalk sample_data/sales_data.csv
-
-# Uninstall editable install (if needed)
-uv pip uninstall datatalk-cli
-
-# Run tests
-uv run python -m pytest
-
-# Build package
-python -m build
-```
+See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup, making releases, and contribution guidelines.
 
 ## Exit Codes
 
@@ -315,16 +293,6 @@ A: CSV, Excel (.xlsx, .xls), and Parquet files.
 
 **Q: How large files can I query?**  
 A: DuckDB handles multi-gigabyte files. Parquet is faster for large datasets.
-
-## Contributing
-
-Contributions welcome! Please:
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes with tests (`uv run python -m pytest`)
-4. Submit a PR
-
-[Issue Tracker](https://github.com/vtsaplin/datatalk-cli/issues) | [Discussions](https://github.com/vtsaplin/datatalk-cli/discussions)
 
 ## License
 
