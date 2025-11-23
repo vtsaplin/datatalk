@@ -26,6 +26,36 @@ uv run python -m pytest
 python -m build
 ```
 
+## Testing
+
+```bash
+# Run all tests
+uv run python -m pytest
+
+# Run specific test
+uv run python -m pytest tests/test_e2e.py::TestCLI::test_load_csv_file
+```
+
+### Provider Configuration
+
+Tests work with any LLM provider. Configure in `.env`:
+
+```bash
+# OpenAI
+LLM_MODEL=gpt-4o
+OPENAI_API_KEY=your-key
+
+# Anthropic / Google / Ollama
+LLM_MODEL=claude-3-5-sonnet-20241022
+ANTHROPIC_API_KEY=your-key
+```
+
+### VS Code / Cursor
+
+Repository includes `.vscode/` config:
+- **Testing panel** (🧪) - auto-discover, run and debug tests
+- **Launch configs** (F5) - run/debug DataTalk CLI in single query or interactive mode
+
 ## Creating Demo
 
 Generate animated GIF using [VHS](https://github.com/charmbracelet/vhs):
