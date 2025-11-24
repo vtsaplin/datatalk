@@ -4,16 +4,16 @@
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-# Chat with your data in plain English. Right from your terminal.
+## Chat with your data in plain English. Right from your terminal.
 
-Skip SQL and complex syntax. Just ask “What are the top 5 products?” 
-and get instant answers on your local files.
+> A natural language interface for your CSV, Excel (.xlsx), and Parquet files. Fast, local, and private.
 
-🔒 Privacy First: Your data never leaves your machine.  
-Use cloud LLMs or run 100% offline with local models.
+Skip SQL and complex syntax. Just ask “What are the top 5 products?”  
+and get instant answers from your local data.
 
-💡 Works with CSV, Excel (.xlsx) and Parquet.  
-⚡️ Fast, local, reliable.
+**Privacy First:** Your data never leaves your machine.  
+**Formats:** CSV, Excel (.xlsx), Parquet  
+**Performance:** Local analytics engine for instant results.
 
 ![Demo](docs/demo.gif)
 
