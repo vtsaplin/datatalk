@@ -13,16 +13,6 @@ if [ "$CURRENT_BRANCH" != "main" ]; then
     exit 1
 fi
 
-# --- Run tests ---
-echo "Running tests..."
-if ! uv run python -m pytest; then
-    echo "Error: Tests failed"
-    echo "   Fix the failing tests before releasing"
-    exit 1
-fi
-echo "All tests passed"
-echo ""
-
 # --- Get version from pyproject.toml ---
 VERSION=$(grep '^version = ' pyproject.toml | sed 's/version = "\(.*\)"/\1/')
 TAG="v$VERSION"
@@ -52,6 +42,16 @@ if ! git diff-index --quiet HEAD --; then
         exit 1
     fi
 fi
+
+# --- Run tests ---
+echo "Running tests..."
+if ! uv run python -m pytest; then
+    echo "Error: Tests failed"
+    echo "   Fix the failing tests before releasing"
+    exit 1
+fi
+echo "All tests passed"
+echo ""
 
 # --- Push changes to main ---
 git push origin main
