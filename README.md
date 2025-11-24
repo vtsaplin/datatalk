@@ -32,8 +32,8 @@ dtalk sales.csv
 
 - **Natural Language** - Ask questions in plain English, no SQL required
 - **Interactive Mode** - Ask multiple questions without restarting the command
+- **100% Local Processing** - Data never leaves your machine, only schema is sent to LLM
 - **100% Offline Option** - Use local Ollama models for complete offline operation, no internet required
-- **100% Local Processing** - Data never leaves your machine, only schema is sent to LLM (or nothing at all with local models)
 - **Fast** - DuckDB processes gigabytes locally in seconds
 - **100+ LLM Models** - Powered by [LiteLLM](https://docs.litellm.ai) - OpenAI, Anthropic, Google, Ollama (local), and more
 - **Multiple File Formats** - Supports CSV, Excel (.xlsx, .xls), and Parquet files
