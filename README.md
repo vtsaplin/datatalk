@@ -19,7 +19,6 @@ Get instant answers from your **local data**.
 
 **⭐ If you find this useful, please star the repo. It helps a lot!**
 
-
 ## Why DataTalk?
 
 **The Problem:** You have a CSV file and a simple question. What do you do?
