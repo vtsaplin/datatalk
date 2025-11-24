@@ -6,7 +6,9 @@
 
 > **Chat with your data files in plain English. Right from your terminal.**
 >
-> No SQL. No command flags. Just ask "What are the top 5 products?" and get instant answers. All processing happens locally, your data never leaves your machine.
+> No SQL. No command flags. Just ask "What are the top 5 products?" and get instant answers.
+>
+> **🔒 Your data never leaves your machine.** Use cloud LLMs (OpenAI, Claude) or run 100% offline with local models (Ollama).
 
 ![Demo](docs/demo.gif)
 
@@ -30,7 +32,8 @@ dtalk sales.csv
 
 - **Natural Language** - Ask questions in plain English, no SQL required
 - **Interactive Mode** - Ask multiple questions without restarting the command
-- **100% Local Processing** - Data never leaves your machine, only schema is sent to LLM
+- **100% Offline Option** - Use local Ollama models for complete offline operation, no internet required
+- **100% Local Processing** - Data never leaves your machine, only schema is sent to LLM (or nothing at all with local models)
 - **Fast** - DuckDB processes gigabytes locally in seconds
 - **100+ LLM Models** - Powered by [LiteLLM](https://docs.litellm.ai) - OpenAI, Anthropic, Google, Ollama (local), and more
 - **Multiple File Formats** - Supports CSV, Excel (.xlsx, .xls), and Parquet files
@@ -44,14 +47,18 @@ dtalk sales.csv
 pip install datatalk-cli
 ```
 
-**Requirements:** Python 3.9+ and API key for a supported LLM provider (or local Ollama)
+**Requirements:** Python 3.9+ and either an API key for cloud models (OpenAI, Anthropic, etc.) OR local Ollama for offline use
 
 ## Quick Start
 
 ```bash
-# Set your model and API key
+# Option 1: Use cloud models (OpenAI, Anthropic, Google, etc.)
 export LLM_MODEL="gpt-4o"
 export OPENAI_API_KEY="your-key-here"
+
+# Option 2: Use local Ollama (100% offline, fully private, no API key needed!)
+export LLM_MODEL="ollama/llama3.1"
+# No API key needed - works completely offline!
 
 # Start interactive mode - ask multiple questions
 dtalk sales_data.csv
@@ -63,10 +70,6 @@ dtalk sales_data.csv
 
 # Or use single query mode for quick answers
 dtalk sales_data.csv -p "What are the top 5 products by revenue?"
-
-# Or use local Ollama (fully private, no API key needed!)
-export LLM_MODEL="ollama/llama3.1"
-dtalk sales_data.csv  # Interactive mode works with any model
 ```
 
 ## Configuration
@@ -105,13 +108,14 @@ export LLM_MODEL="gemini-1.5-flash"  # or gemini-1.5-pro
 export GEMINI_API_KEY="..."
 ```
 
-**Ollama (Local - fully private!):**
+**Ollama (100% Offline - fully private, no internet required!):**
 ```bash
+# Install Ollama from https://ollama.ai
 # Start Ollama: ollama serve
 # Pull a model: ollama pull llama3.1
 
 export LLM_MODEL="ollama/llama3.1"  # or ollama/mistral, ollama/codellama
-# No API key needed for local models!
+# No API key needed! Works completely offline - your data and queries never leave your machine.
 ```
 
 **Azure OpenAI:**
@@ -285,8 +289,11 @@ fi
 
 ## FAQ
 
+**Q: Can I use this completely offline?**  
+A: Yes! Use local Ollama models and DataTalk works 100% offline with no internet connection required. Your data and queries never leave your machine.
+
 **Q: Is my data sent to the LLM provider?**  
-A: No. Only schema (column names and types) is sent. Your data stays local.
+A: With cloud models, only schema (column names and types) is sent - your actual data stays local. With local Ollama models, nothing leaves your machine at all.
 
 **Q: What file formats are supported?**  
 A: CSV, Excel (.xlsx, .xls), and Parquet files.
