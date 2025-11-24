@@ -8,7 +8,9 @@
 
 > A **natural language interface** for your **CSV**, **Excel (.xlsx)**, and **Parquet** files. **Fast**, **local**, and **private**.
 
-Skip SQL and complex syntax. Just ask **“What are the top 5 products?”** and get instant answers from your **local data**.
+Skip SQL and complex syntax. Just ask **“What are the top 5 products?”**<br>
+Get instant answers from your **local data**.
+
 
 **Privacy First:** Your data never leaves your machine.  
 **Formats:** CSV, Excel (.xlsx), Parquet  
