@@ -4,11 +4,11 @@
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-> **Chat with your data files in plain English. Right from your terminal.**
+> **Chat with your data in plain English. Right from your terminal.**
 >
-> No SQL. No command flags. Just ask "What are the top 5 products?" and get instant answers.
+> Skip the SQL and complex syntax. Just ask "What are the top 5 products?" and get instant answers.
 >
-> **🔒 Your data never leaves your machine.** Use cloud LLMs (OpenAI, Claude) or run 100% offline with local models (Ollama).
+> **🔒 Privacy First:** Your data never leaves your machine. Use cloud LLMs or run 100% offline with local models.
 
 ![Demo](docs/demo.gif)
 
