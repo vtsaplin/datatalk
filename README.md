@@ -4,11 +4,16 @@
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-> **Chat with your data in plain English. Right from your terminal.**
->
-> Skip the SQL and complex syntax. Just ask "What are the top 5 products?" and get instant answers.
->
-> **🔒 Privacy First:** Your data never leaves your machine. Use cloud LLMs or run 100% offline with local models.
+# Chat with your data in plain English. Right from your terminal.
+
+Skip SQL and complex syntax. Just ask “What are the top 5 products?” 
+and get instant answers on your local files.
+
+🔒 Privacy First: Your data never leaves your machine.  
+Use cloud LLMs or run 100% offline with local models.
+
+💡 Works with CSV, Excel (.xlsx) and Parquet.  
+⚡️ Fast, local, reliable.
 
 ![Demo](docs/demo.gif)
 
