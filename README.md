@@ -11,7 +11,6 @@
 Skip SQL and complex syntax. Just ask **“What are the top 5 products?”**<br>
 Get instant answers from your **local data**.
 
-
 **Privacy First:** Your data never leaves your machine.  
 **Formats:** CSV, Excel (.xlsx), Parquet  
 **Performance:** Local analytics engine for **instant results**.
