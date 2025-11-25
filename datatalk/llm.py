@@ -22,11 +22,10 @@ Table name: events
 Schema: {schema}
 
 CRITICAL RULES:
-- Output ONLY the SQL query, nothing else
+- Wrap the SQL query in markdown code blocks (```sql ... ```)
 - No explanations, no apologies, no refusals
 - If the question doesn't make sense, generate a simple SELECT * FROM events LIMIT 1
 - Query must reference the 'events' table
-- Do not include markdown code blocks
 
 User question: {question}
 
@@ -51,14 +50,14 @@ SQL query:"""
         return self._clean_sql(content)
     
     def _clean_sql(self, sql: str) -> str:
-        """Clean up SQL response (remove markdown code blocks)."""
-        sql = sql.strip()
-        if sql.startswith("```sql"):
-            sql = sql[6:]
-        elif sql.startswith("```"):
-            sql = sql[3:]
-        if sql.endswith("```"):
-            sql = sql[:-3]
+        """Extract SQL from markdown code blocks."""
+        if "```" in sql:
+            parts = sql.split("```")
+            if len(parts) >= 2:
+                block = parts[1]
+                # Skip language tag (first line) if present
+                lines = block.strip().split("\n", 1)
+                return lines[-1].strip() if len(lines) > 1 else lines[0].strip()
         return sql.strip()
     
     def _clean_litellm_error(self, error_message: str) -> str:
