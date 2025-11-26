@@ -6,6 +6,7 @@ import sys
 import json
 import argparse
 import readline
+import termios
 from importlib.metadata import version, PackageNotFoundError
 from typing import Any
 
@@ -178,6 +179,27 @@ def setup_history() -> None:
     atexit.register(readline.write_history_file, HISTORY_FILE)
 
 
+def disable_input_echo() -> list | None:
+    """Disable terminal echo and return original settings."""
+    if not sys.stdin.isatty():
+        return None
+    fd = sys.stdin.fileno()
+    old_settings = termios.tcgetattr(fd)
+    new_settings = termios.tcgetattr(fd)
+    new_settings[3] = new_settings[3] & ~termios.ECHO
+    termios.tcsetattr(fd, termios.TCSADRAIN, new_settings)
+    return old_settings
+
+
+def restore_input_echo(old_settings: list | None) -> None:
+    """Restore terminal settings and clear input buffer."""
+    if old_settings is None:
+        return
+    fd = sys.stdin.fileno()
+    termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
+    termios.tcflush(fd, termios.TCIFLUSH)
+
+
 def run_interactive_mode(
     args: argparse.Namespace,
     provider: LiteLLMProvider,
@@ -189,14 +211,14 @@ def run_interactive_mode(
     setup_history()
     
     printer.result(
-        "Ask questions about your data. "
-        "Type 'quit', 'exit', 'stop', or press Ctrl+C to exit.\n",
+        "Ask questions about your data. Use ↑↓ for history. "
+        "Type 'quit' or press Ctrl+C to exit.\n",
         highlight=False
     )
 
     while True:
         try:
-            question = input("Question: ")
+            question = input(">>> ")
         except EOFError:
             printer.result("\n[dim]Goodbye![/dim]\n", highlight=False)
             break
@@ -208,7 +230,9 @@ def run_interactive_mode(
         if not question.strip():
             continue
 
+        old_settings = disable_input_echo()
         result = query.process_query(provider, question, schema_info, con, printer)
+        restore_input_echo(old_settings)
         
         if result["error"]:
             printer.result(f"\n[red]Error:[/red] {result['error']}\n", highlight=False)

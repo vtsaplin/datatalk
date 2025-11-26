@@ -124,6 +124,6 @@ def print_query_results(df: pd.DataFrame, printer: Printer, limit: int = 20) -> 
     printer.result(table)
 
     if len(df) > limit:
-        msg = f"[dim]Showing first {limit} of {len(df)} rows[/dim]"
+        msg = f"[dim]Showing first {limit} of {len(df)} rows[/dim]\n"
         printer.result(msg, highlight=False)
 
