@@ -46,7 +46,7 @@ dtalk sales.csv
 - **Multiple File Formats** - Supports CSV, Excel (.xlsx, .xls), and Parquet files
 - **Scriptable** - JSON and CSV output formats for automation and pipelines
 - **Simple Configuration** - Just set `LLM_MODEL` and API key environment variables
-- **Transparent** - Use `--sql` to see generated queries
+- **Transparent** - SQL queries shown by default, use `--no-sql` to hide
 
 ## Installation
 
@@ -225,9 +225,11 @@ dtalk data.csv -p "Top 5 products" --csv
 ### Debug & Display Options
 
 ```bash
-# Show generated SQL along with results
-dtalk data.csv -p "query" -s
-dtalk data.csv -p "query" --sql
+# SQL queries are shown by default
+dtalk data.csv -p "query"
+
+# Hide generated SQL
+dtalk data.csv -p "query" --no-sql
 
 # Show only SQL without executing (for debugging/validation)
 dtalk data.csv -p "query" --sql-only
@@ -236,7 +238,7 @@ dtalk data.csv -p "query" --sql-only
 dtalk data.csv --no-schema
 
 # Combine options
-dtalk data.csv -p "query" -s --no-schema    # Show SQL, hide schema
+dtalk data.csv -p "query" --no-sql --no-schema    # Hide both SQL and schema
 ```
 
 ### Scripting

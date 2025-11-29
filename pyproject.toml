@@ -1,6 +1,6 @@
 [project]
 name = "datatalk-cli"
-version = "0.1.26"
+version = "0.1.27"
 description = "Ask questions about your CSV, Excel or Parquet data in natural language."
 readme = "README.md"
 license = "MIT"

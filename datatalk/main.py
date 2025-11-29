@@ -14,6 +14,7 @@ import duckdb
 import pandas as pd
 from dotenv import load_dotenv
 from rich.console import Console
+from rich.syntax import Syntax
 
 from datatalk import database, query
 from datatalk.llm import LiteLLMProvider
@@ -47,12 +48,12 @@ examples:
   
   # Single query with different outputs
   dtalk data.csv -p 'How many rows?'
-  dtalk data.csv -p 'Top 5 products' -s              # Show SQL
   dtalk data.csv -p 'Count products' --json          # JSON for scripts
   dtalk data.csv -p 'All products' --csv             # CSV for export
   
   # Other options
   dtalk data.csv --no-schema                         # Hide schema table
+  dtalk data.csv -p 'query' --no-sql                 # Hide SQL
   dtalk data.csv -p 'query' --sql-only               # Only SQL
 """
 
@@ -70,7 +71,7 @@ examples:
     format_group.add_argument("--json", action="store_true", help="Output results as JSON (requires -p)")
     format_group.add_argument("--csv", action="store_true", help="Output results as CSV (requires -p)")
     
-    parser.add_argument("-s", "--sql", action="store_true", help="Show generated SQL queries")
+    parser.add_argument("--no-sql", action="store_true", help="Hide generated SQL queries")
     parser.add_argument("--no-schema", action="store_true", help="Don't show column details table")
     parser.add_argument("--sql-only", action="store_true", help="Show only SQL query without executing")
 
@@ -138,8 +139,10 @@ def output_csv(df: pd.DataFrame) -> None:
 
 def print_result(result: dict[str, Any], args: argparse.Namespace, printer: Printer) -> None:
     """Print query result based on output format."""
-    if args.sql or args.sql_only:
-        printer.result(f"[cyan]SQL:[/cyan] [bold]{result['sql']}[/bold]", highlight=False)
+    if not args.no_sql or args.sql_only:
+        printer.result()
+        syntax = Syntax(result['sql'], "sql", theme="monokai", background_color="default")
+        printer.result(syntax)
     
     if not args.sql_only:
         print_query_results(result["dataframe"], printer)
