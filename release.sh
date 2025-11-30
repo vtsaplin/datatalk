@@ -28,19 +28,12 @@ fi
 
 # --- Check for uncommitted changes ---
 if ! git diff-index --quiet HEAD --; then
-    echo "Warning: You have uncommitted changes"
+    echo "Error: You have uncommitted changes"
     echo ""
     git status --short
     echo ""
-    read -p "Commit these changes before releasing? (y/n) " -n 1 -r
-    echo
-    if [[ $REPLY =~ ^[Yy]$ ]]; then
-        git add -A
-        git commit -m "chore: bump version to $VERSION"
-    else
-        echo "Release cancelled. Please commit or stash your changes."
-        exit 1
-    fi
+    echo "Please commit your changes first, then run release.sh again."
+    exit 1
 fi
 
 # --- Run tests ---
