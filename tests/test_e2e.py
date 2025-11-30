@@ -220,12 +220,15 @@ class TestSuite:
 
         # If API key is valid and call succeeds, SQL should be shown
         # If API fails, we should see an error but app shouldn't crash
-        if "SQL:" in result.stdout:
-            # API call succeeded and SQL was shown
-            assert result.returncode == 0
+        if result.returncode == 0:
+            # API call succeeded - SQL output should contain SQL keywords
+            # The --sql flag outputs raw SQL without "SQL:" prefix
+            assert "SELECT" in result.stdout.upper() or "SQL:" in result.stdout
         else:
             # API call may have failed, but app handled it gracefully
-            assert "Error" in result.stdout or "error" in result.stdout.lower()
+            # Error messages may appear in stdout or stderr
+            combined_output = result.stdout.lower() + result.stderr.lower()
+            assert "error" in combined_output
 
     def test_output_json(self, test_data_csv):
         """JSON output with --json flag should be pure JSON, parseable by scripts."""
